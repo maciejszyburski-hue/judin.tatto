@@ -30,11 +30,15 @@ const mimeTypes = {
 function parseCookies(headerValue) {
   if (!headerValue) return {};
   return headerValue.split(";").reduce((cookies, chunk) => {
-    const index = chunk.indexOf("=");
-    if (index === -1) return cookies;
-    const key = chunk.slice(0, index).trim();
-    const value = chunk.slice(index + 1).trim();
-    cookies[key] = decodeURIComponent(value);
+    try {
+      const index = chunk.indexOf("=");
+      if (index === -1) return cookies;
+      const key = chunk.slice(0, index).trim();
+      const value = chunk.slice(index + 1).trim();
+      cookies[key] = decodeURIComponent(value);
+    } catch {
+      return cookies;
+    }
     return cookies;
   }, {});
 }
@@ -158,75 +162,84 @@ function serveFile(res, filePath, options = {}) {
 }
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
-  const requestPath = decodeURIComponent(url.pathname);
-  const authenticated = isValidSession(req);
+  try {
+    const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+    const requestPath = decodeURIComponent(url.pathname);
+    const authenticated = isValidSession(req);
 
-  if (requestPath === "/admin" || requestPath === "/admin/") {
-    redirect(res, authenticated ? "/admin/index.html" : "/admin/login");
-    return;
-  }
+    if (requestPath === "/admin" || requestPath === "/admin/") {
+      redirect(res, authenticated ? "/admin/index.html" : "/admin/login");
+      return;
+    }
 
-  if (requestPath === "/admin/login" || requestPath === "/admin/login.html") {
-    if (req.method === "POST") {
-      if (!credentialsConfigured()) {
-        sendText(res, 503, "Admin credentials are not configured.");
-        return;
-      }
-
-      try {
-        const rawBody = await readBody(req);
-        const form = new URLSearchParams(rawBody);
-        const login = form.get("login") || "";
-        const password = form.get("password") || "";
-        if (safeEquals(login, adminLogin) && safeEquals(password, adminPassword)) {
-          redirect(res, "/admin", {
-            "Set-Cookie": buildSessionCookie(req),
-          });
+    if (requestPath === "/admin/login" || requestPath === "/admin/login.html") {
+      if (req.method === "POST") {
+        if (!credentialsConfigured()) {
+          sendText(res, 503, "Admin credentials are not configured.");
           return;
         }
-      } catch {
+
+        try {
+          const rawBody = await readBody(req);
+          const form = new URLSearchParams(rawBody);
+          const login = form.get("login") || "";
+          const password = form.get("password") || "";
+          if (safeEquals(login, adminLogin) && safeEquals(password, adminPassword)) {
+            redirect(res, "/admin", {
+              "Set-Cookie": buildSessionCookie(req),
+            });
+            return;
+          }
+        } catch {
+          redirect(res, "/admin/login?error=1");
+          return;
+        }
+
         redirect(res, "/admin/login?error=1");
         return;
       }
 
-      redirect(res, "/admin/login?error=1");
+      if (authenticated) {
+        redirect(res, "/admin");
+        return;
+      }
+
+      serveFile(res, path.join(baseDir, "admin", "login.html"), {noStore: true});
       return;
     }
 
-    if (authenticated) {
-      redirect(res, "/admin");
+    if (requestPath === "/admin/logout") {
+      redirect(res, "/admin/login", {
+        "Set-Cookie": buildExpiredSessionCookie(req),
+      });
       return;
     }
 
-    serveFile(res, path.join(baseDir, "admin", "login.html"), {noStore: true});
-    return;
-  }
+    if (requestPath.startsWith("/admin/") && !authenticated) {
+      redirect(res, "/admin/login");
+      return;
+    }
 
-  if (requestPath === "/admin/logout") {
-    redirect(res, "/admin/login", {
-      "Set-Cookie": buildExpiredSessionCookie(req),
-    });
-    return;
-  }
+    const target = requestPath === "/" ? "index.html" : requestPath.replace(/^[/\\]+/, "");
+    let filePath = path.resolve(baseDir, target);
 
-  if (requestPath.startsWith("/admin/") && !authenticated) {
-    redirect(res, "/admin/login");
-    return;
-  }
+    if (filePath !== basePath && !filePath.startsWith(basePath + path.sep)) {
+      sendText(res, 403, "Forbidden");
+      return;
+    }
 
-  const target = requestPath === "/" ? "index.html" : requestPath.replace(/^[/\\]+/, "");
-  let filePath = path.resolve(baseDir, target);
-
-  if (filePath !== basePath && !filePath.startsWith(basePath + path.sep)) {
-    sendText(res, 403, "Forbidden");
-    return;
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+      filePath = path.join(filePath, "index.html");
+    }
+    serveFile(res, filePath, {noStore: requestPath.startsWith("/admin/")});
+  } catch (error) {
+    console.error("Request error:", error);
+    if (!res.headersSent) {
+      sendText(res, 500, "Server error");
+    } else {
+      res.end();
+    }
   }
-
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(filePath, "index.html");
-  }
-  serveFile(res, filePath, {noStore: requestPath.startsWith("/admin/")});
 });
 
 server.listen(port, "0.0.0.0", () => {
