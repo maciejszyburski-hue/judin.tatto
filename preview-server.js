@@ -10,6 +10,8 @@ const sessionCookieName = "judin_admin_session";
 const sessionLifetimeMs = 1000 * 60 * 60 * 8;
 const adminLogin = process.env.ADMINPANEL_LOGIN || "";
 const adminPassword = process.env.ADMINPANEL_PASSWORD || "";
+const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY || "";
+const turnstileSecretKey = process.env.TURNSTILE_SECRET_KEY || "";
 const sessionSecret =
   process.env.ADMIN_SESSION_SECRET ||
   `${adminLogin}:${adminPassword}:${process.env.RAILWAY_STATIC_URL || "judin-admin"}`;
@@ -107,6 +109,14 @@ function sendText(res, statusCode, message) {
   res.end(message);
 }
 
+function sendJson(res, statusCode, payload) {
+  writeHead(res, statusCode, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+  });
+  res.end(JSON.stringify(payload));
+}
+
 function buildSessionCookie(req) {
   const parts = [
     `${sessionCookieName}=${encodeURIComponent(createSessionValue())}`,
@@ -161,11 +171,82 @@ function serveFile(res, filePath, options = {}) {
   });
 }
 
+function getRemoteIp(req) {
+  return (
+    req.headers["cf-connecting-ip"] ||
+    req.headers["x-forwarded-for"] ||
+    req.socket.remoteAddress ||
+    ""
+  );
+}
+
+async function verifyTurnstileToken(token, req) {
+  if (!turnstileSecretKey) {
+    return {success: false, "error-codes": ["missing-input-secret"]};
+  }
+
+  const formData = new FormData();
+  formData.append("secret", turnstileSecretKey);
+  formData.append("response", token);
+
+  const remoteIp = getRemoteIp(req);
+  if (remoteIp) formData.append("remoteip", remoteIp);
+
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: formData,
+    });
+    return await response.json();
+  } catch {
+    return {success: false, "error-codes": ["internal-error"]};
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
     const requestPath = decodeURIComponent(url.pathname);
     const authenticated = isValidSession(req);
+
+    if (requestPath === "/api/turnstile/config") {
+      sendJson(res, 200, {
+        enabled: Boolean(turnstileSiteKey && turnstileSecretKey),
+        siteKey: turnstileSiteKey || null,
+      });
+      return;
+    }
+
+    if (requestPath === "/api/turnstile/verify") {
+      if (req.method !== "POST") {
+        sendJson(res, 405, {success: false, error: "method-not-allowed"});
+        return;
+      }
+
+      if (!turnstileSiteKey || !turnstileSecretKey) {
+        sendJson(res, 503, {success: false, error: "turnstile-not-configured"});
+        return;
+      }
+
+      let token = "";
+      try {
+        const rawBody = await readBody(req);
+        const body = JSON.parse(rawBody || "{}");
+        token = typeof body.token === "string" ? body.token : "";
+      } catch {
+        sendJson(res, 400, {success: false, error: "invalid-json"});
+        return;
+      }
+
+      if (!token) {
+        sendJson(res, 400, {success: false, error: "missing-token"});
+        return;
+      }
+
+      const result = await verifyTurnstileToken(token, req);
+      sendJson(res, result.success ? 200 : 400, result);
+      return;
+    }
 
     if (requestPath === "/admin" || requestPath === "/admin/") {
       redirect(res, authenticated ? "/admin/index.html" : "/admin/login");

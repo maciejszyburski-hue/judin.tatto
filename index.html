@@ -12,6 +12,7 @@
   <meta property="og:locale" content="pl_PL" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://judin.tattoo/" />
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=judinTurnstileOnLoad" async defer></script>
 
   <script type="application/ld+json">
   {
@@ -883,6 +884,23 @@
       text-transform: uppercase;
     }
     .submit-feedback.show { display: block; }
+    .submit-feedback.error {
+      border: 1px solid rgba(248,113,113,0.24);
+      background: rgba(248,113,113,0.08);
+      color: #f4d0d0;
+    }
+    .turnstile-wrap {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-start;
+    }
+    .turnstile-wrap.is-hidden { display: none; }
+    .turnstile-note {
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+      color: rgba(237,232,223,0.5);
+      line-height: 1.6;
+    }
     .btn-submit {
       width: 100%; background: linear-gradient(135deg, #f4efe7, #ddd4c8); color: var(--ink);
       font-family: var(--ui-font); font-size: 0.95rem; letter-spacing: 0.2em;
@@ -1600,6 +1618,10 @@
               </div>
             </div>
             <p class="form-note">Po zapisaniu termin trafi do panelu admina jako oczekujący. Administrator może potem edytować dane klienta, potwierdzić wizytę albo zablokować inne godziny.</p>
+            <div class="turnstile-wrap is-hidden" id="turnstileWrap">
+              <div id="turnstileWidget"></div>
+            </div>
+            <p class="turnstile-note" id="turnstileNote">Zabezpieczenie antyspamowe ładuje się...</p>
             <button class="btn-submit" id="bookingSubmitBtn" type="button">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               <span>Wyślij zapytanie</span>
@@ -2047,6 +2069,9 @@
   const clientServiceInput = document.getElementById('clientService');
   const clientInstagramInput = document.getElementById('clientInstagram');
   const clientNotesInput = document.getElementById('clientNotes');
+  const turnstileWrap = document.getElementById('turnstileWrap');
+  const turnstileWidget = document.getElementById('turnstileWidget');
+  const turnstileNote = document.getElementById('turnstileNote');
   const adminEditToggle = document.getElementById('adminEditToggle');
   const adminResetBtn = document.getElementById('adminResetBtn');
   const adminKpis = document.getElementById('adminKpis');
@@ -2151,6 +2176,11 @@
   let selectedTime = null;
   let calYear = getTodayDate().getFullYear();
   let calMonth = getTodayDate().getMonth();
+  let turnstileConfig = null;
+  let turnstileToken = '';
+  let turnstileWidgetId = null;
+  let turnstileRendered = false;
+  let bookingSubmitBusy = false;
 
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -2212,6 +2242,79 @@
     clientNotesInput.value = '';
   }
 
+  function setBookingFeedback(message, isError) {
+    bookingFeedback.textContent = message;
+    bookingFeedback.classList.add('show');
+    bookingFeedback.classList.toggle('error', Boolean(isError));
+  }
+
+  function clearBookingFeedback() {
+    bookingFeedback.classList.remove('show', 'error');
+  }
+
+  function updateBookingSubmitState() {
+    bookingSubmitBtn.disabled = bookingSubmitBusy;
+    bookingSubmitBtn.style.opacity = bookingSubmitBusy ? '0.7' : '1';
+  }
+
+  function updateTurnstileNote(message, isError) {
+    turnstileNote.textContent = message;
+    turnstileNote.style.color = isError ? '#f4d0d0' : 'rgba(237,232,223,0.5)';
+  }
+
+  function resetTurnstileToken() {
+    turnstileToken = '';
+  }
+
+  function resetTurnstileWidget() {
+    resetTurnstileToken();
+    if (window.turnstile && turnstileWidgetId !== null) {
+      window.turnstile.reset(turnstileWidgetId);
+    }
+  }
+
+  function renderTurnstileWidget() {
+    if (!turnstileConfig || !turnstileConfig.enabled || !turnstileConfig.siteKey) {
+      turnstileWrap.classList.add('is-hidden');
+      updateTurnstileNote('Formularz chwilowo niedostępny. Zabezpieczenie Turnstile nie jest jeszcze skonfigurowane.', true);
+      return;
+    }
+    if (!window.turnstile || turnstileRendered) return;
+    turnstileWrap.classList.remove('is-hidden');
+    turnstileWidgetId = window.turnstile.render('#turnstileWidget', {
+      sitekey: turnstileConfig.siteKey,
+      theme: 'dark',
+      callback: function(token) {
+        turnstileToken = token;
+        updateTurnstileNote('Weryfikacja zakończona. Możesz wysłać zapytanie.', false);
+      },
+      'expired-callback': function() {
+        resetTurnstileToken();
+        updateTurnstileNote('Weryfikacja wygasła. Potwierdź ponownie, że nie jesteś botem.', true);
+      },
+      'error-callback': function() {
+        resetTurnstileToken();
+        updateTurnstileNote('Nie udało się załadować zabezpieczenia. Odśwież stronę i spróbuj ponownie.', true);
+      }
+    });
+    turnstileRendered = true;
+    updateTurnstileNote('Potwierdź, że nie jesteś botem, aby wysłać zapytanie.', false);
+  }
+
+  async function loadTurnstileConfig() {
+    try {
+      const response = await fetch('/api/turnstile/config', {cache: 'no-store'});
+      turnstileConfig = await response.json();
+    } catch (error) {
+      turnstileConfig = { enabled: false, siteKey: null };
+    }
+    renderTurnstileWidget();
+  }
+
+  window.judinTurnstileOnLoad = function() {
+    renderTurnstileWidget();
+  };
+
   function renderCalendar() {
     const calGrid = document.getElementById('calGrid');
     const calTitle = document.getElementById('calTitle');
@@ -2261,7 +2364,7 @@
     renderBookingSummary();
     document.getElementById('timeSlots').classList.add('show');
     document.getElementById('bookForm').classList.remove('show');
-    bookingFeedback.classList.remove('show');
+    clearBookingFeedback();
   }
 
   function renderSlots(dateKey) {
@@ -2277,7 +2380,7 @@
         selectedTime = el.dataset.time;
         renderBookingSummary();
         document.getElementById('bookForm').classList.add('show');
-        bookingFeedback.classList.remove('show');
+        clearBookingFeedback();
       });
     });
   }
@@ -2450,11 +2553,44 @@
     renderCalendar();
   });
 
-  bookingSubmitBtn.addEventListener('click', function() {
+  bookingSubmitBtn.addEventListener('click', async function() {
     const name = clientNameInput.value.trim();
     const phone = clientPhoneInput.value.trim();
     const email = clientEmailInput.value.trim();
-    if (!selectedDate || !selectedTime || !name || !phone || !email) return;
+    if (!selectedDate || !selectedTime || !name || !phone || !email) {
+      setBookingFeedback('Uzupełnij imię, telefon, email oraz wybierz termin i godzinę.', true);
+      return;
+    }
+    if (!turnstileConfig || !turnstileConfig.enabled) {
+      setBookingFeedback('Formularz jest chwilowo niedostępny. Zabezpieczenie antyspamowe nie zostało skonfigurowane.', true);
+      return;
+    }
+    if (!turnstileToken) {
+      setBookingFeedback('Najpierw potwierdź w zabezpieczeniu, że nie jesteś botem.', true);
+      return;
+    }
+
+    bookingSubmitBusy = true;
+    updateBookingSubmitState();
+    clearBookingFeedback();
+
+    try {
+      const response = await fetch('/api/turnstile/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: turnstileToken })
+      });
+      const verification = await response.json();
+      if (!response.ok || !verification.success) {
+        throw new Error('verification-failed');
+      }
+    } catch (error) {
+      setBookingFeedback('Weryfikacja zabezpieczenia nie powiodła się. Spróbuj ponownie.', true);
+      resetTurnstileWidget();
+      bookingSubmitBusy = false;
+      updateBookingSubmitState();
+      return;
+    }
 
     state.appointments.push({
       id: nextAppointmentId(),
@@ -2470,10 +2606,13 @@
     });
 
     saveState();
-    bookingFeedback.classList.add('show');
+    setBookingFeedback('Zapytanie zostało wysłane. Dziękujemy.', false);
     clearBookingForm();
     resetBookingUi();
+    resetTurnstileWidget();
     refreshBookingAndAdmin();
+    bookingSubmitBusy = false;
+    updateBookingSubmitState();
   });
 
   availabilityDateInput.addEventListener('change', () => {
@@ -2509,6 +2648,7 @@
 
   renderCalendar();
   refreshBookingAndAdmin();
+  loadTurnstileConfig();
 
   </script>
 </body>
