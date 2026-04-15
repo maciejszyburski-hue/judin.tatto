@@ -206,8 +206,18 @@ async function verifyTurnstileToken(token, req) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
-    const requestPath = decodeURIComponent(url.pathname);
+    let requestPath = decodeURIComponent(url.pathname);
     const authenticated = isValidSession(req);
+
+    if (/(^|\/)(index\.html|galeria\.html)\/admin\/?$/.test(requestPath)) {
+      redirect(res, "/admin");
+      return;
+    }
+
+    if (/(^|\/)(index\.html|galeria\.html)\/admin\/login\/?$/.test(requestPath)) {
+      redirect(res, "/admin/login");
+      return;
+    }
 
     if (requestPath === "/api/turnstile/config") {
       sendJson(res, 200, {
