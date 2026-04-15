@@ -686,6 +686,27 @@
     .showreel-overlay {
       position: absolute; inset: 0; pointer-events: none;
     }
+    .showreel-play {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(7,6,10,0.72);
+      color: var(--cream);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: all;
+      cursor: none;
+      backdrop-filter: blur(10px);
+    }
+    .showreel-video-wrap.needs-play .showreel-play {
+      display: flex;
+    }
     .showreel-mute {
       position: absolute; bottom: 1.5rem; right: 1.5rem;
       width: 44px; height: 44px;
@@ -1165,8 +1186,10 @@
       footer { flex-direction: column; gap: 1.5rem; text-align: center; }
     }
     @media (max-width: 600px) {
-      .intro-wordmark-wrap { width: min(92vw, 540px); }
-      .intro-video { min-height: 180px; object-fit: contain; }
+      .intro-wordmark-wrap { width: min(94vw, 560px); }
+      .intro-video { min-height: 220px; object-fit: contain; }
+      .intro-fallback { width: min(92vw, 560px); }
+      .intro-fallback-main { font-size: clamp(4.4rem, 18vw, 7.6rem); }
       .intro-enter { bottom: 2rem; font-size: 0.62rem; letter-spacing: 0.24em; gap: 0.75rem; }
       .intro-enter::before, .intro-enter::after { width: 22px; }
       .hero-content { padding: 0 1.25rem 5rem; }
@@ -1188,8 +1211,9 @@
       .price-value { font-size: 1.35rem; letter-spacing: 0.08em; }
       .price-badge { display: inline-block; margin: 0.45rem 0 0; }
       .pricing-note { padding: 1.2rem; align-items: flex-start; }
-      .showreel-video { aspect-ratio: 4 / 5; }
+      .showreel-video { aspect-ratio: 9 / 13; min-height: 440px; }
       .showreel-mute { bottom: 1rem; right: 1rem; }
+      .showreel-play { width: 68px; height: 68px; }
       .cal { padding: 1rem; }
       .cal-head { align-items: flex-start; gap: 1rem; }
       .cal-title { font-size: 0.95rem; letter-spacing: 0.08em; }
@@ -1205,8 +1229,9 @@
     @media (hover: none), (pointer: coarse) {
       body, a, button, [role="button"], .gallery-strip-item, .cal-day, .time-slot { cursor: auto; }
       .cur-dot, .cur-ring { display: none; }
-      .intro-video.mobile-hidden { display: none; }
-      .intro-fallback.mobile-visible { display: block; }
+      .intro-video { display: none !important; }
+      .intro-fallback { display: block; }
+      .showreel-play { cursor: auto; }
     }
   </style>
 </head>
@@ -1478,6 +1503,11 @@
           <source src="./judin-reel.mp4" type="video/mp4" />
         </video>
         <div class="showreel-overlay">
+          <button class="showreel-play" id="showreelPlay" aria-label="Odtwórz showreel">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </button>
           <button class="showreel-mute" id="showreelMute" aria-label="Wycisz/Odcisz">
             <svg class="icon-muted" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
             <svg class="icon-sound" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
@@ -1865,21 +1895,37 @@
   /* Showreel mute toggle */
   const showreelVideo = document.querySelector('.showreel-video');
   const showreelMute  = document.getElementById('showreelMute');
+  const showreelPlay  = document.getElementById('showreelPlay');
+  const showreelWrap  = document.querySelector('.showreel-video-wrap');
   if (showreelMute && showreelVideo) {
     const iMuted = showreelMute.querySelector('.icon-muted');
     const iSound = showreelMute.querySelector('.icon-sound');
     const tryPlayShowreel = () => {
       const playPromise = showreelVideo.play();
-      if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise
+          .then(() => { if (showreelWrap) showreelWrap.classList.remove('needs-play'); })
+          .catch(() => { if (showreelWrap) showreelWrap.classList.add('needs-play'); });
+      }
     };
 
     tryPlayShowreel();
     showreelVideo.addEventListener('loadedmetadata', tryPlayShowreel);
     showreelVideo.addEventListener('canplay', tryPlayShowreel);
+    showreelVideo.addEventListener('playing', () => {
+      if (showreelWrap) showreelWrap.classList.remove('needs-play');
+    });
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') tryPlayShowreel();
     });
     document.addEventListener('touchstart', tryPlayShowreel, { once: true });
+    if (showreelPlay) {
+      showreelPlay.addEventListener('click', () => {
+        showreelVideo.controls = true;
+        showreelVideo.muted = false;
+        tryPlayShowreel();
+      });
+    }
 
     showreelMute.addEventListener('click', () => {
       showreelVideo.muted = !showreelVideo.muted;
