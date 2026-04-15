@@ -259,7 +259,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (requestPath === "/admin" || requestPath === "/admin/") {
-      redirect(res, authenticated ? "/admin/index.html" : "/admin/login");
+      redirect(res, "/admin/login");
       return;
     }
 
@@ -291,7 +291,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (authenticated) {
-        redirect(res, "/admin");
+        redirect(res, "/admin/index.html");
         return;
       }
 
