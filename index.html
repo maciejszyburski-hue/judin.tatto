@@ -188,6 +188,31 @@
       border: 0;
       pointer-events: none;
     }
+    .intro-fallback {
+      display: none;
+      width: min(88vw, 760px);
+      text-align: center;
+      color: var(--cream);
+    }
+    .intro-fallback-main {
+      font-family: var(--display-font);
+      font-size: clamp(4rem, 16vw, 7.5rem);
+      letter-spacing: 0.06em;
+      line-height: 0.92;
+      text-shadow: 0 0 28px rgba(255,255,255,0.08);
+    }
+    .intro-fallback-sub {
+      margin-top: 0.7rem;
+      font-family: var(--brand-font);
+      font-size: 0.78rem;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: rgba(237,232,223,0.68);
+    }
+    .intro-fallback.show {
+      display: block;
+      animation: fadeUpSoft 0.8s ease forwards;
+    }
     .intro-video::-webkit-media-controls,
     .intro-video::-webkit-media-controls-panel,
     .intro-video::-webkit-media-controls-play-button,
@@ -1140,6 +1165,10 @@
       footer { flex-direction: column; gap: 1.5rem; text-align: center; }
     }
     @media (max-width: 600px) {
+      .intro-wordmark-wrap { width: min(92vw, 540px); }
+      .intro-video { min-height: 180px; object-fit: contain; }
+      .intro-enter { bottom: 2rem; font-size: 0.62rem; letter-spacing: 0.24em; gap: 0.75rem; }
+      .intro-enter::before, .intro-enter::after { width: 22px; }
       .hero-content { padding: 0 1.25rem 5rem; }
       .hero-title { font-size: clamp(3.4rem, 18vw, 8rem); letter-spacing: 0.04em; }
       .hero-italic { font-size: clamp(1.45rem, 9vw, 2.5rem); margin-bottom: 1.6rem; }
@@ -1159,6 +1188,8 @@
       .price-value { font-size: 1.35rem; letter-spacing: 0.08em; }
       .price-badge { display: inline-block; margin: 0.45rem 0 0; }
       .pricing-note { padding: 1.2rem; align-items: flex-start; }
+      .showreel-video { aspect-ratio: 4 / 5; }
+      .showreel-mute { bottom: 1rem; right: 1rem; }
       .cal { padding: 1rem; }
       .cal-head { align-items: flex-start; gap: 1rem; }
       .cal-title { font-size: 0.95rem; letter-spacing: 0.08em; }
@@ -1174,6 +1205,8 @@
     @media (hover: none), (pointer: coarse) {
       body, a, button, [role="button"], .gallery-strip-item, .cal-day, .time-slot { cursor: auto; }
       .cur-dot, .cur-ring { display: none; }
+      .intro-video.mobile-hidden { display: none; }
+      .intro-fallback.mobile-visible { display: block; }
     }
   </style>
 </head>
@@ -1212,6 +1245,10 @@
         >
           <source src="./judin-intro.mp4" type="video/mp4" />
         </video>
+        <div class="intro-fallback" id="introFallback" aria-hidden="true">
+          <div class="intro-fallback-main">Judin</div>
+          <div class="intro-fallback-sub">Tattoo Atelier</div>
+        </div>
       </div>
     </div>
     <div class="intro-sub" id="introSub">Tattoo Atelier — Gdańsk</div>
@@ -1433,8 +1470,10 @@
       <div class="showreel-video-wrap">
         <video
           class="showreel-video"
-          autoplay muted loop playsinline
+          autoplay muted loop playsinline webkit-playsinline
+          preload="metadata"
           poster="./images/hero-main.jpg"
+          disablepictureinpicture
         >
           <source src="./judin-reel.mp4" type="video/mp4" />
         </video>
@@ -1829,6 +1868,19 @@
   if (showreelMute && showreelVideo) {
     const iMuted = showreelMute.querySelector('.icon-muted');
     const iSound = showreelMute.querySelector('.icon-sound');
+    const tryPlayShowreel = () => {
+      const playPromise = showreelVideo.play();
+      if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+    };
+
+    tryPlayShowreel();
+    showreelVideo.addEventListener('loadedmetadata', tryPlayShowreel);
+    showreelVideo.addEventListener('canplay', tryPlayShowreel);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') tryPlayShowreel();
+    });
+    document.addEventListener('touchstart', tryPlayShowreel, { once: true });
+
     showreelMute.addEventListener('click', () => {
       showreelVideo.muted = !showreelVideo.muted;
       iMuted.style.display = showreelVideo.muted ? '' : 'none';
@@ -1851,18 +1903,41 @@
   const introStage = document.getElementById('introStage');
   const introLogo = document.getElementById('introLogo');
   const introVideo = document.getElementById('introVideo');
+  const introFallback = document.getElementById('introFallback');
   const introSub = document.getElementById('introSub');
   const introEnter = document.getElementById('introEnter');
   const navLogo = document.getElementById('navLogo');
   let introDismissed = false;
   let introAutoTimer = null;
+  const isMobileViewport = window.matchMedia('(hover: none), (pointer: coarse), (max-width: 767px)').matches;
+
+  function showIntroFallback() {
+    if (introVideo) introVideo.classList.add('mobile-hidden');
+    if (introFallback) introFallback.classList.add('show', 'mobile-visible');
+  }
 
   function runIntro() {
+    if (isMobileViewport) {
+      showIntroFallback();
+      setTimeout(() => { introSub.classList.add('show'); }, 250);
+      setTimeout(() => { introEnter.classList.add('show'); }, 650);
+      introAutoTimer = setTimeout(dismissIntro, 2600);
+      return;
+    }
+
     setTimeout(() => {
       if (introVideo) {
         introVideo.currentTime = 0;
         const playPromise = introVideo.play();
-        if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(() => {
+            showIntroFallback();
+            setTimeout(() => { introSub.classList.add('show'); }, 250);
+            setTimeout(() => { introEnter.classList.add('show'); }, 650);
+            if (introAutoTimer) clearTimeout(introAutoTimer);
+            introAutoTimer = setTimeout(dismissIntro, 2600);
+          });
+        }
       }
       playBuzz(2.4);
     }, 120);
@@ -1891,7 +1966,11 @@
 
   /* Intro plays on EVERY page load */
   runIntro();
-  if (introVideo) introVideo.addEventListener('ended', dismissIntro);
+  if (introVideo) {
+    introVideo.addEventListener('ended', dismissIntro);
+    introVideo.addEventListener('error', showIntroFallback);
+    introVideo.addEventListener('stalled', showIntroFallback);
+  }
   intro.addEventListener('click', dismissIntro);
   document.addEventListener('keydown', e => {
     if (!introDismissed && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) dismissIntro();

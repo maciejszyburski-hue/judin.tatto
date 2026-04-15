@@ -763,6 +763,7 @@
           refresh();
         }
         else if (btn.dataset.action === 'delete') {
+          if (!window.confirm('Na pewno usunąć tę wizytę klienta?')) return;
           state.appointments = state.appointments.filter(a => a.id !== id);
           editingRows.delete(id);
           saveState();
