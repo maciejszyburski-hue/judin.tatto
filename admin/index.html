@@ -14,7 +14,8 @@
       --panel: #141218;
       --cream: #ede8df;
       --muted: #8d8791;
-      --border: rgba(255,255,255,0.12);
+      --border: rgba(255,255,255,0.1);
+      --border-hover: rgba(255,255,255,0.22);
       --brand-font: 'Marcellus', serif;
       --display-font: 'Pirata One', serif;
       --ui-font: 'Barlow Condensed', sans-serif;
@@ -23,7 +24,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background:
-        radial-gradient(circle at 20% 0%, rgba(255,255,255,0.06), transparent 24%),
+        radial-gradient(circle at 20% 0%, rgba(255,255,255,0.05), transparent 24%),
         linear-gradient(180deg, #0b0a0e 0%, #07060a 100%);
       color: var(--cream);
       font-family: var(--brand-font);
@@ -34,18 +35,21 @@
       position: fixed;
       inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      opacity: 0.035;
+      opacity: 0.03;
       pointer-events: none;
     }
     a { color: inherit; text-decoration: none; }
 
+    /* ── Shell ── */
     .shell {
-      max-width: 1320px;
+      max-width: 1360px;
       margin: 0 auto;
       padding: 2rem 2rem 5rem;
       position: relative;
       z-index: 1;
     }
+
+    /* ── Topbar ── */
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -55,11 +59,7 @@
       padding-bottom: 1rem;
       border-bottom: 1px solid var(--border);
     }
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
+    .brand { display: flex; flex-direction: column; gap: 0.2rem; }
     .brand-main {
       font-family: var(--display-font);
       font-size: 2.1rem;
@@ -70,58 +70,60 @@
       font-size: 0.68rem;
       letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: rgba(237,232,223,0.68);
+      color: rgba(237,232,223,0.55);
     }
     .topbar-actions {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.65rem;
       flex-wrap: wrap;
       align-items: center;
     }
+
+    /* ── Buttons ── */
     .nav-btn,
     .btn {
       border: 1px solid var(--border);
       background: transparent;
       color: var(--cream);
-      padding: 0.8rem 1rem;
+      padding: 0.75rem 1rem;
       font-family: var(--ui-font);
       font-size: 0.72rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: border-color 0.25s, background 0.25s, color 0.25s;
+      transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.08s ease, opacity 0.2s ease;
     }
-    .nav-btn:hover,
-    .btn:hover {
-      border-color: rgba(255,255,255,0.3);
+    .nav-btn:hover, .btn:hover {
+      border-color: var(--border-hover);
       background: rgba(255,255,255,0.05);
+    }
+    .nav-btn:active, .btn:active {
+      transform: scale(0.96);
+      opacity: 0.85;
     }
     .btn.primary {
       background: linear-gradient(135deg, #f4efe7, #ddd4c8);
       color: var(--ink);
       border-color: transparent;
     }
-    .btn.primary:hover {
-      background: linear-gradient(135deg, #ffffff, #ebe4d7);
-    }
-    .btn.active {
-      border-color: rgba(255,255,255,0.34);
-      background: rgba(255,255,255,0.08);
-    }
+    .btn.primary:hover { background: linear-gradient(135deg, #ffffff, #ebe4d7); }
+    .btn.primary:active { transform: scale(0.96); opacity: 0.9; }
+
+    /* ── Hero ── */
     .hero {
       display: flex;
       justify-content: space-between;
-      align-items: end;
+      align-items: flex-end;
       gap: 2rem;
       margin: 2rem 0 2.5rem;
     }
     .eyebrow {
       font-family: var(--ui-font);
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       letter-spacing: 0.28em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 1rem;
+      margin-bottom: 0.9rem;
     }
     .hero h1 {
       font-family: var(--display-font);
@@ -132,20 +134,23 @@
     .hero p {
       max-width: 520px;
       margin-top: 1rem;
-      color: rgba(237,232,223,0.62);
+      color: rgba(237,232,223,0.55);
       line-height: 1.8;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
     .badge {
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
-      padding: 0.8rem 1rem;
+      background: rgba(255,255,255,0.02);
+      padding: 0.75rem 1rem;
       font-family: var(--ui-font);
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--muted);
+      white-space: nowrap;
     }
+
+    /* ── KPIs ── */
     .kpis {
       display: grid;
       grid-template-columns: repeat(4,1fr);
@@ -153,207 +158,304 @@
       margin-bottom: 1.5rem;
     }
     .kpi {
-      padding: 1.15rem;
+      padding: 1.2rem 1.4rem;
       border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(20,18,24,0.72);
+      background: rgba(20,18,24,0.7);
+      transition: border-color 0.2s ease;
     }
+    .kpi:hover { border-color: rgba(255,255,255,0.12); }
     .kpi-value {
       font-family: var(--display-font);
-      font-size: 2rem;
+      font-size: 2.1rem;
       letter-spacing: 0.04em;
     }
     .kpi-label {
-      margin-top: 0.5rem;
-      font-family: var(--ui-font);
-      font-size: 0.62rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.45fr) minmax(330px, 0.9fr);
-      gap: 1.25rem;
-    }
-    .card {
-      background: rgba(20,18,24,0.78);
-      border: 1px solid var(--border);
-      padding: 1.4rem;
-    }
-    .card-title {
-      font-family: var(--ui-font);
-      font-size: 0.72rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 1rem;
-    }
-    .filters {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr 0.8fr auto;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-    .field input,
-    .field select,
-    .field textarea {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      color: var(--cream);
-      padding: 0.75rem 0.85rem;
-      font-family: var(--brand-font);
-      font-size: 0.88rem;
-    }
-    .table-wrap { overflow-x: auto; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 880px;
-    }
-    th, td {
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 0.8rem 0.5rem;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
+      margin-top: 0.4rem;
       font-family: var(--ui-font);
       font-size: 0.6rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--muted);
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: rgba(20,18,24,0.75);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .card-title {
+      font-family: var(--ui-font);
+      font-size: 0.68rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Filters ── */
+    .filters {
+      display: grid;
+      grid-template-columns: 1.4fr 0.9fr 0.9fr auto;
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      color: var(--cream);
+      padding: 0.72rem 0.85rem;
+      font-family: var(--brand-font);
+      font-size: 0.88rem;
+      transition: border-color 0.2s ease;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.28);
+    }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 0.85rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      font-family: var(--ui-font);
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
       font-weight: 400;
     }
-    td {
-      font-size: 0.82rem;
+    td { font-size: 0.82rem; }
+    tbody tr {
+      transition: background 0.15s ease;
     }
-    td input,
-    td select,
-    td textarea {
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    tbody tr.is-editing { background: rgba(255,255,255,0.03); }
+
+    td input, td select, td textarea {
       width: 100%;
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
       color: var(--cream);
-      padding: 0.5rem 0.55rem;
+      padding: 0.48rem 0.55rem;
       font-family: var(--brand-font);
       font-size: 0.8rem;
+      transition: border-color 0.2s ease;
     }
-    td textarea { min-height: 72px; resize: vertical; }
+    td input:focus, td select:focus, td textarea:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.28);
+    }
+    td input:disabled, td select:disabled, td textarea:disabled {
+      opacity: 1;
+      background: transparent;
+      border-color: transparent;
+      padding-left: 0;
+      cursor: default;
+    }
+    td textarea { min-height: 64px; resize: vertical; }
+
+    /* ── Status badge ── */
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.65rem;
+      font-family: var(--ui-font);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ── Row actions ── */
     .row-actions {
       display: flex;
-      gap: 0.45rem;
+      gap: 0.4rem;
       flex-wrap: wrap;
     }
     .mini-btn {
-      padding: 0.5rem 0.65rem;
+      padding: 0.48rem 0.7rem;
       border: 1px solid var(--border);
       background: transparent;
-      color: var(--cream);
+      color: rgba(237,232,223,0.75);
       font-family: var(--ui-font);
       font-size: 0.58rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.08s ease, opacity 0.18s ease;
+      white-space: nowrap;
+    }
+    .mini-btn:hover {
+      border-color: var(--border-hover);
+      background: rgba(255,255,255,0.05);
+      color: var(--cream);
+    }
+    .mini-btn:active { transform: scale(0.93); opacity: 0.8; }
+    .mini-btn.edit {
+      color: rgba(237,232,223,0.65);
+    }
+    .mini-btn.edit:hover {
+      color: var(--cream);
     }
     .mini-btn.save {
-      color: #d8f3dc;
-      border-color: rgba(90,168,105,0.35);
+      color: #86efac;
+      border-color: rgba(74,222,128,0.28);
+    }
+    .mini-btn.save:hover {
+      background: rgba(74,222,128,0.08);
+    }
+    .mini-btn.cancel {
+      color: rgba(237,232,223,0.5);
     }
     .mini-btn.danger {
-      color: #f6c1c1;
-      border-color: rgba(246,193,193,0.25);
+      color: #fca5a5;
+      border-color: rgba(248,113,113,0.22);
     }
-    .stack {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    .mini-btn.danger:hover {
+      background: rgba(248,113,113,0.07);
     }
-    .availability-grid {
+
+    /* ── Bottom grid (calendar + upcoming) ── */
+    .bottom-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.8rem;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+
+    /* ── Availability ── */
+    .availability-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
       margin-bottom: 1rem;
     }
     .meta {
-      padding: 1rem;
+      padding: 0.9rem 1rem;
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.02);
       margin-bottom: 1rem;
       line-height: 1.7;
-      color: rgba(237,232,223,0.72);
+      color: rgba(237,232,223,0.65);
+      font-size: 0.84rem;
     }
     .meta strong {
       display: block;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.3rem;
       font-family: var(--ui-font);
-      font-size: 0.68rem;
-      letter-spacing: 0.16em;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--cream);
+      color: rgba(237,232,223,0.5);
     }
     .slot-grid {
       display: grid;
-      grid-template-columns: repeat(2,1fr);
+      grid-template-columns: repeat(3,1fr);
       gap: 0.5rem;
     }
     .slot-btn {
       border: 1px solid var(--border);
       background: transparent;
       color: var(--cream);
-      padding: 0.75rem;
+      padding: 0.7rem 0.5rem;
       font-family: var(--ui-font);
-      font-size: 0.7rem;
-      letter-spacing: 0.14em;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
       cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.08s ease, opacity 0.18s ease;
+      text-align: center;
     }
+    .slot-btn:hover {
+      border-color: var(--border-hover);
+      background: rgba(255,255,255,0.05);
+    }
+    .slot-btn:active { transform: scale(0.94); opacity: 0.8; }
     .slot-btn.off {
-      background: rgba(255,255,255,0.08);
-      color: var(--muted);
-      border-color: rgba(255,255,255,0.18);
+      background: rgba(248,113,113,0.07);
+      color: rgba(252,165,165,0.65);
+      border-color: rgba(248,113,113,0.2);
+      text-decoration: line-through;
     }
+    .slot-btn.off:hover {
+      background: rgba(248,113,113,0.12);
+    }
+
+    /* ── Upcoming list ── */
     .upcoming {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 0.7rem;
+      gap: 0.65rem;
     }
     .upcoming li {
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
       gap: 1rem;
+      padding-bottom: 0.65rem;
       border-bottom: 1px solid rgba(255,255,255,0.05);
-      padding-bottom: 0.7rem;
     }
+    .upcoming li:last-child { border-bottom: none; padding-bottom: 0; }
+    .upcoming strong { font-family: var(--brand-font); font-size: 0.88rem; }
     .upcoming small {
       color: var(--muted);
       font-family: var(--ui-font);
+      font-size: 0.68rem;
       letter-spacing: 0.08em;
     }
+
+    /* ── Empty state ── */
     .empty {
-      padding: 1rem;
-      border: 1px dashed rgba(255,255,255,0.12);
+      padding: 1.2rem;
+      border: 1px dashed rgba(255,255,255,0.1);
       color: var(--muted);
-      font-size: 0.84rem;
+      font-size: 0.82rem;
+      text-align: center;
     }
 
+    /* ── Responsive ── */
     @media (max-width: 1100px) {
-      .layout { grid-template-columns: 1fr; }
+      .bottom-grid { grid-template-columns: 1fr; }
       .kpis { grid-template-columns: repeat(2,1fr); }
     }
     @media (max-width: 760px) {
       .shell { padding: 1.2rem 1rem 4rem; }
       .hero { flex-direction: column; align-items: flex-start; }
       .filters,
-      .availability-grid,
+      .availability-controls,
       .kpis { grid-template-columns: 1fr; }
-      table { min-width: 760px; }
+      table { min-width: 780px; }
       .topbar { align-items: flex-start; flex-direction: column; }
+      .slot-grid { grid-template-columns: repeat(2,1fr); }
     }
   </style>
 </head>
 <body>
   <div class="shell">
+
+    <!-- Topbar -->
     <div class="topbar">
       <div class="brand">
         <a href="../index.html" class="brand-main">Judin</a>
@@ -361,69 +463,77 @@
       </div>
       <div class="topbar-actions">
         <a class="nav-btn" href="../index.html">Wróć do strony</a>
-        <button class="btn" id="adminEditToggle" type="button">Tryb edycji: Wył.</button>
         <button class="btn primary" id="adminResetBtn" type="button">Przywróć dane testowe</button>
       </div>
     </div>
 
+    <!-- Hero -->
     <div class="hero">
       <div>
         <div class="eyebrow">Zarządzanie rezerwacjami</div>
         <h1>Dashboard<br>Rezerwacji</h1>
-        <p>Tu możesz przeglądać nowe zapytania, edytować dane klientów, filtrować wizyty i zmieniać dostępność godzin w kalendarzu bez żadnego logowania.</p>
+        <p>Przeglądaj zapytania, edytuj dane klientów, filtruj wizyty i zarządzaj dostępnością kalendarza.</p>
       </div>
       <div class="badge">Widok lokalny — zmiany zapisują się w przeglądarce</div>
     </div>
 
+    <!-- KPIs -->
     <div class="kpis" id="adminKpis"></div>
 
-    <div class="layout">
-      <div class="card">
+    <!-- Clients table — full width -->
+    <div class="card">
+      <div class="card-header">
         <div class="card-title">Wizyty klientów</div>
-        <div class="filters">
-          <div class="field"><input id="searchInput" type="text" placeholder="Szukaj po imieniu, telefonie, emailu lub usłudze" /></div>
-          <div class="field">
-            <select id="statusFilter">
-              <option value="all">Wszystkie statusy</option>
-              <option value="Nowa">Nowa</option>
-              <option value="Potwierdzona">Potwierdzona</option>
-              <option value="W trakcie ustaleń">W trakcie ustaleń</option>
-              <option value="Zrealizowana">Zrealizowana</option>
-              <option value="Anulowana">Anulowana</option>
-            </select>
-          </div>
-          <div class="field">
-            <select id="dateFilter">
-              <option value="all">Wszystkie daty</option>
-              <option value="upcoming">Nadchodzące</option>
-              <option value="today">Dziś</option>
-              <option value="past">Minione</option>
-            </select>
-          </div>
-          <button class="btn" id="clearFiltersBtn" type="button">Wyczyść</button>
+      </div>
+      <div class="filters">
+        <div class="field"><input id="searchInput" type="text" placeholder="Szukaj po imieniu, telefonie, emailu lub usłudze…" /></div>
+        <div class="field">
+          <select id="statusFilter">
+            <option value="all">Wszystkie statusy</option>
+            <option value="Nowa">Nowa</option>
+            <option value="Potwierdzona">Potwierdzona</option>
+            <option value="W trakcie ustaleń">W trakcie ustaleń</option>
+            <option value="Zrealizowana">Zrealizowana</option>
+            <option value="Anulowana">Anulowana</option>
+          </select>
         </div>
-        <div class="table-wrap" id="adminAppointmentsWrap"></div>
+        <div class="field">
+          <select id="dateFilter">
+            <option value="all">Wszystkie daty</option>
+            <option value="upcoming">Nadchodzące</option>
+            <option value="today">Dziś</option>
+            <option value="past">Minione</option>
+          </select>
+        </div>
+        <button class="btn" id="clearFiltersBtn" type="button">Wyczyść</button>
+      </div>
+      <div class="table-wrap" id="adminAppointmentsWrap"></div>
+    </div>
+
+    <!-- Bottom grid: calendar + upcoming -->
+    <div class="bottom-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Dostępność w kalendarzu</div>
+        </div>
+        <div class="availability-controls">
+          <div class="field">
+            <input id="availabilityDate" type="date" />
+          </div>
+          <button class="btn" id="toggleDayBlockBtn" type="button">Blokuj dzień</button>
+        </div>
+        <div class="meta" id="availabilityMeta"></div>
+        <div class="slot-grid" id="availabilitySlots"></div>
       </div>
 
-      <div class="stack">
-        <div class="card">
-          <div class="card-title">Dostępność w kalendarzu</div>
-          <div class="availability-grid">
-            <div class="field">
-              <input id="availabilityDate" type="date" />
-            </div>
-            <button class="btn" id="toggleDayBlockBtn" type="button">Przełącz niedostępny dzień</button>
-          </div>
-          <div class="meta" id="availabilityMeta"></div>
-          <div class="slot-grid" id="availabilitySlots"></div>
-        </div>
-
-        <div class="card">
+      <div class="card">
+        <div class="card-header">
           <div class="card-title">Najbliższe wizyty</div>
-          <ul class="upcoming" id="adminUpcomingList"></ul>
         </div>
+        <ul class="upcoming" id="adminUpcomingList"></ul>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -432,167 +542,124 @@
     const STORAGE_KEY = 'judin-admin-data-v2';
     const STATUS_OPTIONS = ['Nowa', 'Potwierdzona', 'W trakcie ustaleń', 'Zrealizowana', 'Anulowana'];
 
-    const adminEditToggle = document.getElementById('adminEditToggle');
-    const adminResetBtn = document.getElementById('adminResetBtn');
-    const adminKpis = document.getElementById('adminKpis');
-    const adminAppointmentsWrap = document.getElementById('adminAppointmentsWrap');
-    const adminUpcomingList = document.getElementById('adminUpcomingList');
-    const availabilityDateInput = document.getElementById('availabilityDate');
-    const availabilityMeta = document.getElementById('availabilityMeta');
-    const availabilitySlots = document.getElementById('availabilitySlots');
-    const toggleDayBlockBtn = document.getElementById('toggleDayBlockBtn');
-    const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
-    const dateFilter = document.getElementById('dateFilter');
-    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    const STATUS_STYLE = {
+      'Nowa':              'color:#fde047;background:rgba(253,224,71,0.09);border:1px solid rgba(253,224,71,0.28);',
+      'Potwierdzona':      'color:#86efac;background:rgba(74,222,128,0.09);border:1px solid rgba(74,222,128,0.25);',
+      'W trakcie ustaleń': 'color:#93c5fd;background:rgba(147,197,253,0.09);border:1px solid rgba(147,197,253,0.25);',
+      'Zrealizowana':      'color:var(--muted);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);',
+      'Anulowana':         'color:#fca5a5;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);',
+    };
+
+    const adminResetBtn        = document.getElementById('adminResetBtn');
+    const adminKpis            = document.getElementById('adminKpis');
+    const adminAppointmentsWrap= document.getElementById('adminAppointmentsWrap');
+    const adminUpcomingList    = document.getElementById('adminUpcomingList');
+    const availabilityDateInput= document.getElementById('availabilityDate');
+    const availabilityMeta     = document.getElementById('availabilityMeta');
+    const availabilitySlots    = document.getElementById('availabilitySlots');
+    const toggleDayBlockBtn    = document.getElementById('toggleDayBlockBtn');
+    const searchInput          = document.getElementById('searchInput');
+    const statusFilter         = document.getElementById('statusFilter');
+    const dateFilter           = document.getElementById('dateFilter');
+    const clearFiltersBtn      = document.getElementById('clearFiltersBtn');
+
+    // Rows currently in edit mode (survives availability re-renders)
+    const editingRows = new Set();
 
     function toKey(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     }
     function addDays(baseDate, amount) {
-      const date = new Date(baseDate);
-      date.setDate(date.getDate() + amount);
-      return date;
+      const d = new Date(baseDate); d.setDate(d.getDate() + amount); return d;
     }
     function getTodayDate() {
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      return today;
+      const t = new Date(); t.setHours(0,0,0,0); return t;
     }
     function formatDateLabel(dateKey) {
-      const [year, month, day] = dateKey.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+      const [y,m,d] = dateKey.split('-').map(Number);
+      return new Date(y, m-1, d).toLocaleDateString('pl-PL', { day:'numeric', month:'long', year:'numeric' });
     }
+
     function createDefaultState() {
       const today = getTodayDate();
-      const firstDate = toKey(addDays(today, 1));
-      const secondDate = toKey(addDays(today, 2));
-      const thirdDate = toKey(addDays(today, 4));
-      const fullDayOff = toKey(addDays(today, 6));
+      const d1 = toKey(addDays(today, 1));
+      const d2 = toKey(addDays(today, 2));
+      const d3 = toKey(addDays(today, 4));
+      const dOff = toKey(addDays(today, 6));
       return {
         availability: {
-          blockedDates: [fullDayOff],
-          blockedSlots: {
-            [firstDate]: ['17:30'],
-            [secondDate]: ['10:00', '11:30'],
-            [thirdDate]: ['16:00']
-          }
+          blockedDates: [dOff],
+          blockedSlots: { [d1]: ['17:30'], [d2]: ['10:00','11:30'], [d3]: ['16:00'] }
         },
         appointments: [
-          {
-            id: 'APT-1001',
-            name: 'Karolina Maj',
-            phone: '+48 501 210 310',
-            email: 'karolina.maj@email.com',
-            service: 'Tatuaż średni',
-            instagram: '@karola.maj',
-            notes: 'Florystyczny motyw na przedramię, czarno-szary.',
-            date: firstDate,
-            time: '13:00',
-            status: 'Potwierdzona'
-          },
-          {
-            id: 'APT-1002',
-            name: 'Michał Wrona',
-            phone: '+48 533 121 515',
-            email: 'm.wrona@email.com',
-            service: 'Konsultacja',
-            instagram: 'Messenger',
-            notes: 'Cover starego małego tatuażu na barku.',
-            date: secondDate,
-            time: '14:30',
-            status: 'Nowa'
-          },
-          {
-            id: 'APT-1003',
-            name: 'Julia Sokołowska',
-            phone: '+48 606 119 772',
-            email: 'j.sokolowska@email.com',
-            service: 'Tatuaż duży',
-            instagram: '@jula.soko',
-            notes: 'Projekt rękawa, pierwsza sesja.',
-            date: thirdDate,
-            time: '11:30',
-            status: 'W trakcie ustaleń'
-          }
+          { id:'APT-1001', name:'Karolina Maj',       phone:'+48 501 210 310', email:'karolina.maj@email.com',  service:'Tatuaż średni', instagram:'@karola.maj',  notes:'Florystyczny motyw na przedramię, czarno-szary.', date:d1, time:'13:00', status:'Potwierdzona' },
+          { id:'APT-1002', name:'Michał Wrona',        phone:'+48 533 121 515', email:'m.wrona@email.com',        service:'Konsultacja',   instagram:'Messenger',    notes:'Cover starego małego tatuażu na barku.',          date:d2, time:'14:30', status:'Nowa' },
+          { id:'APT-1003', name:'Julia Sokołowska',    phone:'+48 606 119 772', email:'j.sokolowska@email.com',  service:'Tatuaż duży',   instagram:'@jula.soko',   notes:'Projekt rękawa, pierwsza sesja.',                  date:d3, time:'11:30', status:'W trakcie ustaleń' },
         ]
       };
     }
+
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return createDefaultState();
-        const parsed = JSON.parse(raw);
-        if (!parsed || !Array.isArray(parsed.appointments) || !parsed.availability) return createDefaultState();
-        parsed.availability.blockedDates = Array.isArray(parsed.availability.blockedDates) ? parsed.availability.blockedDates : [];
-        parsed.availability.blockedSlots = parsed.availability.blockedSlots || {};
-        return parsed;
-      } catch {
-        return createDefaultState();
-      }
+        const p = JSON.parse(raw);
+        if (!p || !Array.isArray(p.appointments) || !p.availability) return createDefaultState();
+        p.availability.blockedDates = Array.isArray(p.availability.blockedDates) ? p.availability.blockedDates : [];
+        p.availability.blockedSlots = p.availability.blockedSlots || {};
+        return p;
+      } catch { return createDefaultState(); }
     }
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
+
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     function sortAppointments() {
-      state.appointments.sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+      state.appointments.sort((a,b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
     }
     function nextAppointmentId() {
-      const max = state.appointments.reduce((highest, item) => {
-        const value = Number(String(item.id || '').replace(/\D/g, ''));
-        return Number.isFinite(value) ? Math.max(highest, value) : highest;
+      const max = state.appointments.reduce((hi, item) => {
+        const v = Number(String(item.id||'').replace(/\D/g,''));
+        return Number.isFinite(v) ? Math.max(hi, v) : hi;
       }, 1000);
-      return `APT-${max + 1}`;
+      return `APT-${max+1}`;
     }
-    function getAppointmentsForDate(dateKey) {
-      return state.appointments.filter(item => item.date === dateKey && item.status !== 'Anulowana');
-    }
-    function getTakenSlots(dateKey) {
-      return getAppointmentsForDate(dateKey).map(item => item.time);
-    }
-    function isDayBlocked(dateKey) {
-      return state.availability.blockedDates.includes(dateKey);
-    }
-    function getBlockedSlots(dateKey) {
-      return state.availability.blockedSlots[dateKey] || [];
-    }
+    function isDayBlocked(dateKey) { return state.availability.blockedDates.includes(dateKey); }
     function getFilteredAppointments() {
       const search = searchInput.value.trim().toLowerCase();
       const status = statusFilter.value;
       const dateMode = dateFilter.value;
       const todayKey = toKey(getTodayDate());
       return state.appointments.filter(item => {
-        const searchable = `${item.name} ${item.phone} ${item.email} ${item.service} ${item.instagram || ''} ${item.notes || ''}`.toLowerCase();
-        const searchMatch = !search || searchable.includes(search);
+        const haystack = `${item.name} ${item.phone} ${item.email} ${item.service} ${item.instagram||''} ${item.notes||''}`.toLowerCase();
+        const searchMatch = !search || haystack.includes(search);
         const statusMatch = status === 'all' || item.status === status;
         let dateMatch = true;
-        if (dateMode === 'today') dateMatch = item.date === todayKey;
+        if (dateMode === 'today')    dateMatch = item.date === todayKey;
         if (dateMode === 'upcoming') dateMatch = item.date >= todayKey;
-        if (dateMode === 'past') dateMatch = item.date < todayKey;
+        if (dateMode === 'past')     dateMatch = item.date < todayKey;
         return searchMatch && statusMatch && dateMatch;
       });
     }
 
     let state = loadState();
-    let adminEditMode = false;
     let availabilityFocusDate = state.appointments[0]?.date || toKey(addDays(getTodayDate(), 1));
 
+    // ── Render: KPIs ──
     function renderKpis() {
       const todayKey = toKey(getTodayDate());
-      const active = state.appointments.filter(item => item.status !== 'Anulowana');
-      const pending = active.filter(item => item.status === 'Nowa').length;
-      const upcoming = active.filter(item => item.date >= todayKey).length;
-      const confirmed = active.filter(item => item.status === 'Potwierdzona').length;
-      const blockedDays = state.availability.blockedDates.length;
+      const active   = state.appointments.filter(i => i.status !== 'Anulowana');
+      const pending  = active.filter(i => i.status === 'Nowa').length;
+      const upcoming = active.filter(i => i.date >= todayKey).length;
+      const confirmed= active.filter(i => i.status === 'Potwierdzona').length;
+      const blocked  = state.availability.blockedDates.length;
       adminKpis.innerHTML = `
         <div class="kpi"><div class="kpi-value">${active.length}</div><div class="kpi-label">Wszystkie wizyty</div></div>
         <div class="kpi"><div class="kpi-value">${upcoming}</div><div class="kpi-label">Nadchodzące</div></div>
         <div class="kpi"><div class="kpi-value">${pending}</div><div class="kpi-label">Nowe zapytania</div></div>
-        <div class="kpi"><div class="kpi-value">${confirmed + blockedDays}</div><div class="kpi-label">Potwierdzone / blokady</div></div>
+        <div class="kpi"><div class="kpi-value">${confirmed + blocked}</div><div class="kpi-label">Potwierdzone / blokady</div></div>
       `;
     }
 
+    // ── Render: Appointments ──
     function renderAppointments() {
       sortAppointments();
       const appointments = getFilteredAppointments();
@@ -600,89 +667,128 @@
         adminAppointmentsWrap.innerHTML = '<div class="empty">Brak wyników dla wybranych filtrów.</div>';
         return;
       }
-      const rows = appointments.map(item => `
-        <tr data-id="${item.id}">
-          <td>${item.id}</td>
-          <td><input data-field="date" type="date" value="${item.date}" ${adminEditMode ? '' : 'disabled'}></td>
-          <td><select data-field="time" ${adminEditMode ? '' : 'disabled'}>${SLOTS.map(slot => `<option value="${slot}" ${slot === item.time ? 'selected' : ''}>${slot}</option>`).join('')}</select></td>
-          <td>
-            <input data-field="name" type="text" value="${item.name}" ${adminEditMode ? '' : 'disabled'}>
-            <input data-field="phone" type="text" value="${item.phone}" ${adminEditMode ? '' : 'disabled'} style="margin-top:0.45rem;">
-            <input data-field="email" type="text" value="${item.email}" ${adminEditMode ? '' : 'disabled'} style="margin-top:0.45rem;">
-          </td>
-          <td>
-            <select data-field="service" ${adminEditMode ? '' : 'disabled'}>
-              ${['Konsultacja','Tatuaż mały','Tatuaż średni','Tatuaż duży','Poprawka / cover'].map(service => `<option value="${service}" ${service === item.service ? 'selected' : ''}>${service}</option>`).join('')}
-            </select>
-            <input data-field="instagram" type="text" value="${item.instagram || ''}" ${adminEditMode ? '' : 'disabled'} style="margin-top:0.45rem;">
-          </td>
-          <td><textarea data-field="notes" ${adminEditMode ? '' : 'disabled'}>${item.notes || ''}</textarea></td>
-          <td><select data-field="status" ${adminEditMode ? '' : 'disabled'}>${STATUS_OPTIONS.map(status => `<option value="${status}" ${status === item.status ? 'selected' : ''}>${status}</option>`).join('')}</select></td>
-          <td>
-            <div class="row-actions">
-              <button class="mini-btn save" type="button" data-action="save" ${adminEditMode ? '' : 'disabled'}>Zapisz</button>
-              <button class="mini-btn danger" type="button" data-action="delete">Usuń</button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
+      const rows = appointments.map(item => {
+        const editing = editingRows.has(item.id);
+        const statusStyle = STATUS_STYLE[item.status] || '';
+        const notesDisplay = item.notes
+          ? `<span style="color:rgba(237,232,223,0.65);font-size:0.8rem;line-height:1.5;">${item.notes}</span>`
+          : '<span style="color:var(--muted);">—</span>';
+        if (editing) {
+          return `
+            <tr data-id="${item.id}" class="is-editing">
+              <td style="color:var(--muted);font-size:0.72rem;">${item.id}</td>
+              <td><input data-field="date" type="date" value="${item.date}"></td>
+              <td><select data-field="time">${SLOTS.map(s => `<option value="${s}" ${s===item.time?'selected':''}>${s}</option>`).join('')}</select></td>
+              <td>
+                <input data-field="name" type="text" value="${item.name}">
+                <input data-field="phone" type="text" value="${item.phone}" style="margin-top:0.4rem;">
+                <input data-field="email" type="text" value="${item.email}" style="margin-top:0.4rem;">
+              </td>
+              <td>
+                <select data-field="service">${['Konsultacja','Tatuaż mały','Tatuaż średni','Tatuaż duży','Poprawka / cover'].map(s => `<option value="${s}" ${s===item.service?'selected':''}>${s}</option>`).join('')}</select>
+                <input data-field="instagram" type="text" value="${item.instagram||''}" style="margin-top:0.4rem;">
+              </td>
+              <td><textarea data-field="notes">${item.notes||''}</textarea></td>
+              <td><select data-field="status">${STATUS_OPTIONS.map(s => `<option value="${s}" ${s===item.status?'selected':''}>${s}</option>`).join('')}</select></td>
+              <td>
+                <div class="row-actions">
+                  <button class="mini-btn save" type="button" data-action="save">Zapisz</button>
+                  <button class="mini-btn cancel" type="button" data-action="cancel">Anuluj</button>
+                  <button class="mini-btn danger" type="button" data-action="delete">Usuń</button>
+                </div>
+              </td>
+            </tr>`;
+        }
+        return `
+          <tr data-id="${item.id}">
+            <td style="color:var(--muted);font-size:0.72rem;">${item.id}</td>
+            <td style="white-space:nowrap;">${formatDateLabel(item.date)}</td>
+            <td style="white-space:nowrap;font-family:var(--ui-font);letter-spacing:0.06em;">${item.time}</td>
+            <td>
+              <div style="font-weight:600;margin-bottom:0.15rem;">${item.name}</div>
+              <div style="color:var(--muted);font-size:0.75rem;line-height:1.6;">${item.phone}<br>${item.email}</div>
+            </td>
+            <td>
+              <div>${item.service}</div>
+              ${item.instagram ? `<div style="color:var(--muted);font-size:0.75rem;margin-top:0.15rem;">${item.instagram}</div>` : ''}
+            </td>
+            <td>${notesDisplay}</td>
+            <td><span class="status-badge" style="${statusStyle}">${item.status}</span></td>
+            <td>
+              <div class="row-actions">
+                <button class="mini-btn edit" type="button" data-action="edit">Edytuj</button>
+                <button class="mini-btn danger" type="button" data-action="delete">Usuń</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+
       adminAppointmentsWrap.innerHTML = `
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Data</th>
-              <th>Godz.</th>
-              <th>Klient</th>
-              <th>Usługa</th>
-              <th>Opis</th>
-              <th>Status</th>
-              <th>Akcje</th>
+              <th>ID</th><th>Data</th><th>Godz.</th><th>Klient</th>
+              <th>Usługa</th><th>Opis</th><th>Status</th><th>Akcje</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
-        </table>
-      `;
+        </table>`;
 
-      adminAppointmentsWrap.querySelectorAll('[data-action="save"]').forEach(button => {
-        button.addEventListener('click', () => {
-          const row = button.closest('tr');
-          const appointment = state.appointments.find(item => item.id === row.dataset.id);
-          if (!appointment) return;
-          row.querySelectorAll('[data-field]').forEach(field => {
-            appointment[field.dataset.field] = field.value.trim();
+      // Delegated event handler for all row actions
+      adminAppointmentsWrap.querySelector('tbody').addEventListener('click', e => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const row = btn.closest('tr');
+        const id  = row.dataset.id;
+
+        if (btn.dataset.action === 'edit') {
+          editingRows.add(id);
+          renderAppointments();
+        }
+        else if (btn.dataset.action === 'cancel') {
+          editingRows.delete(id);
+          renderAppointments();
+        }
+        else if (btn.dataset.action === 'save') {
+          const appt = state.appointments.find(a => a.id === id);
+          if (!appt) return;
+          row.querySelectorAll('[data-field]').forEach(f => {
+            appt[f.dataset.field] = f.value.trim();
           });
+          editingRows.delete(id);
           saveState();
           refresh();
-        });
-      });
-      adminAppointmentsWrap.querySelectorAll('[data-action="delete"]').forEach(button => {
-        button.addEventListener('click', () => {
-          const rowId = button.closest('tr').dataset.id;
-          state.appointments = state.appointments.filter(item => item.id !== rowId);
+        }
+        else if (btn.dataset.action === 'delete') {
+          state.appointments = state.appointments.filter(a => a.id !== id);
+          editingRows.delete(id);
           saveState();
           refresh();
-        });
+        }
       });
     }
 
+    // ── Render: Upcoming ──
     function renderUpcoming() {
       const todayKey = toKey(getTodayDate());
       const items = state.appointments
-        .filter(item => item.date >= todayKey && item.status !== 'Anulowana')
-        .sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`))
-        .slice(0, 5);
-      adminUpcomingList.innerHTML = items.length ? items.map(item => `
-        <li>
-          <div>
-            <strong>${item.name}</strong><br>
-            <small>${formatDateLabel(item.date)} — ${item.time}</small>
-          </div>
-          <small>${item.status}</small>
-        </li>
-      `).join('') : '<li><span>Brak nadchodzących wizyt.</span><small>—</small></li>';
+        .filter(i => i.date >= todayKey && i.status !== 'Anulowana')
+        .sort((a,b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`))
+        .slice(0, 6);
+      const statusStyle = id => STATUS_STYLE[id] || '';
+      adminUpcomingList.innerHTML = items.length
+        ? items.map(i => `
+          <li>
+            <div>
+              <strong>${i.name}</strong><br>
+              <small>${formatDateLabel(i.date)} — ${i.time}</small>
+            </div>
+            <span class="status-badge" style="font-size:0.58rem;padding:0.25rem 0.5rem;${statusStyle(i.status)}">${i.status}</span>
+          </li>`).join('')
+        : '<li><span style="color:var(--muted);font-size:0.84rem;">Brak nadchodzących wizyt.</span></li>';
     }
 
+    // ── Render: Availability ──
     function ensureAvailabilityDate() {
       if (!availabilityFocusDate) availabilityFocusDate = toKey(addDays(getTodayDate(), 1));
       availabilityDateInput.value = availabilityFocusDate;
@@ -690,29 +796,35 @@
 
     function renderAvailability() {
       ensureAvailabilityDate();
-      const blockedDay = isDayBlocked(availabilityFocusDate);
+      const blockedDay   = isDayBlocked(availabilityFocusDate);
       const blockedSlots = state.availability.blockedSlots[availabilityFocusDate] || [];
       availabilityMeta.innerHTML = `
         <strong>Status dnia</strong>
-        ${formatDateLabel(availabilityFocusDate)} — ${blockedDay ? 'cały dzień zablokowany' : 'dzień aktywny'}
-      `;
-      toggleDayBlockBtn.classList.toggle('active', blockedDay);
+        ${formatDateLabel(availabilityFocusDate)} —
+        ${blockedDay
+          ? '<span style="color:#fca5a5;">cały dzień zablokowany</span>'
+          : '<span style="color:#86efac;">dzień aktywny</span>'}`;
+      toggleDayBlockBtn.textContent = blockedDay ? 'Odblokuj dzień' : 'Blokuj dzień';
+      toggleDayBlockBtn.style.cssText = blockedDay
+        ? 'border-color:rgba(248,113,113,0.3);color:#fca5a5;'
+        : '';
       availabilitySlots.innerHTML = SLOTS.map(slot => `
         <button class="slot-btn ${blockedSlots.includes(slot) ? 'off' : ''}" type="button" data-slot="${slot}">${slot}</button>
       `).join('');
-      availabilitySlots.querySelectorAll('.slot-btn').forEach(button => {
-        button.addEventListener('click', () => {
-          const slot = button.dataset.slot;
-          const current = new Set(state.availability.blockedSlots[availabilityFocusDate] || []);
+      availabilitySlots.querySelectorAll('.slot-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const slot   = btn.dataset.slot;
+          const current= new Set(state.availability.blockedSlots[availabilityFocusDate] || []);
           if (current.has(slot)) current.delete(slot); else current.add(slot);
           if (current.size) state.availability.blockedSlots[availabilityFocusDate] = Array.from(current).sort();
           else delete state.availability.blockedSlots[availabilityFocusDate];
           saveState();
-          refresh();
+          refreshAvailability(); // don't touch the appointments table
         });
       });
     }
 
+    // Full refresh (appointments + sidebar)
     function refresh() {
       renderKpis();
       renderAppointments();
@@ -720,14 +832,17 @@
       renderAvailability();
     }
 
-    adminEditToggle.addEventListener('click', () => {
-      adminEditMode = !adminEditMode;
-      adminEditToggle.textContent = `Tryb edycji: ${adminEditMode ? 'Wł.' : 'Wył.'}`;
-      adminEditToggle.classList.toggle('active', adminEditMode);
-      renderAppointments();
-    });
+    // Availability-only refresh (preserves mid-edit rows in appointments)
+    function refreshAvailability() {
+      renderKpis();
+      renderUpcoming();
+      renderAvailability();
+    }
+
+    // ── Event listeners ──
     adminResetBtn.addEventListener('click', () => {
       state = createDefaultState();
+      editingRows.clear();
       availabilityFocusDate = state.appointments[0]?.date || toKey(addDays(getTodayDate(), 1));
       saveState();
       refresh();
@@ -743,17 +858,16 @@
       else set.add(availabilityFocusDate);
       state.availability.blockedDates = Array.from(set).sort();
       saveState();
-      refresh();
+      refreshAvailability();
     });
-
-    [searchInput, statusFilter, dateFilter].forEach(control => {
-      control.addEventListener('input', renderAppointments);
-      control.addEventListener('change', renderAppointments);
+    [searchInput, statusFilter, dateFilter].forEach(el => {
+      el.addEventListener('input',  renderAppointments);
+      el.addEventListener('change', renderAppointments);
     });
     clearFiltersBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      statusFilter.value = 'all';
-      dateFilter.value = 'all';
+      searchInput.value    = '';
+      statusFilter.value   = 'all';
+      dateFilter.value     = 'all';
       renderAppointments();
     });
 
