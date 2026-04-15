@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Judin Tattoo - Admin Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Marcellus&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #07060a;
+      --cream: #ede8df;
+      --muted: #8d8791;
+      --border: rgba(255,255,255,0.12);
+      --border-hover: rgba(255,255,255,0.24);
+      --brand-font: "Marcellus", serif;
+      --display-font: "Pirata One", serif;
+      --ui-font: "Barlow Condensed", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      color: var(--cream);
+      font-family: var(--brand-font);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.08), transparent 24%),
+        linear-gradient(180deg, #0c0a10 0%, #07060a 100%);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+    }
+
+    .panel {
+      width: min(100%, 460px);
+      position: relative;
+      z-index: 1;
+      border: 1px solid var(--border);
+      background: rgba(15,13,18,0.88);
+      padding: 2rem;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    }
+    .eyebrow {
+      font-family: var(--ui-font);
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-family: var(--display-font);
+      font-size: clamp(2.3rem, 9vw, 3.4rem);
+      letter-spacing: 0.05em;
+      line-height: 0.95;
+      margin-bottom: 0.8rem;
+    }
+    p {
+      color: rgba(237,232,223,0.64);
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+      font-size: 0.96rem;
+    }
+    .field {
+      margin-bottom: 0.9rem;
+    }
+    .label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-family: var(--ui-font);
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--cream);
+      padding: 0.88rem 0.95rem;
+      font-family: var(--brand-font);
+      font-size: 1rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--border-hover);
+    }
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1.2rem;
+    }
+    button,
+    .back-link {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--cream);
+      padding: 0.85rem 1rem;
+      font-family: var(--ui-font);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.08s ease;
+    }
+    button:hover,
+    .back-link:hover {
+      border-color: var(--border-hover);
+      background: rgba(255,255,255,0.05);
+    }
+    button:active,
+    .back-link:active {
+      transform: scale(0.97);
+    }
+    button.primary {
+      background: linear-gradient(135deg, #f4efe7, #ddd4c8);
+      color: var(--ink);
+      border-color: transparent;
+    }
+    .notice {
+      display: none;
+      margin-bottom: 1rem;
+      padding: 0.85rem 0.95rem;
+      border: 1px solid rgba(248,113,113,0.22);
+      background: rgba(248,113,113,0.08);
+      color: #f4d0d0;
+      line-height: 1.6;
+    }
+    .notice.is-visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="eyebrow">Protected Admin Access</div>
+    <h1>Judin Admin</h1>
+    <p>Zaloguj sie danymi ustawionymi w Railway, aby wejsc do panelu rezerwacji.</p>
+    <div class="notice" id="loginNotice"></div>
+    <form method="post" action="/admin/login" autocomplete="off">
+      <div class="field">
+        <label class="label" for="login">Login</label>
+        <input id="login" name="login" type="text" required />
+      </div>
+      <div class="field">
+        <label class="label" for="password">Password</label>
+        <input id="password" name="password" type="password" required />
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit">Log In</button>
+        <a class="back-link" href="/">Back to site</a>
+      </div>
+    </form>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const notice = document.getElementById("loginNotice");
+    if (params.get("error") === "1") {
+      notice.textContent = "Invalid login or password.";
+      notice.classList.add("is-visible");
+    }
+  </script>
+</body>
+</html>
