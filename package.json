@@ -1,0 +1,22 @@
+{
+  "name": "judin-tattoo",
+  "version": "1.0.0",
+  "description": "Judin Tattoo website and admin panel",
+  "main": "preview-server.js",
+  "scripts": {
+    "start": "node preview-server.js",
+    "dev": "node preview-server.js"
+  },
+  "keywords": [
+    "judin",
+    "tattoo",
+    "website",
+    "admin"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

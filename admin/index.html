@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Judin Tattoo — Panel Admina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Marcellus&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #07060A;
+      --dark: #0f0d12;
+      --panel: #141218;
+      --cream: #ede8df;
+      --muted: #8d8791;
+      --border: rgba(255,255,255,0.12);
+      --brand-font: 'Marcellus', serif;
+      --display-font: 'Pirata One', serif;
+      --ui-font: 'Barlow Condensed', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,255,255,0.06), transparent 24%),
+        linear-gradient(180deg, #0b0a0e 0%, #07060a 100%);
+      color: var(--cream);
+      font-family: var(--brand-font);
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .shell {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 2rem 2rem 5rem;
+      position: relative;
+      z-index: 1;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .brand-main {
+      font-family: var(--display-font);
+      font-size: 2.1rem;
+      letter-spacing: 0.08em;
+    }
+    .brand-sub {
+      font-family: var(--ui-font);
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(237,232,223,0.68);
+    }
+    .topbar-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .nav-btn,
+    .btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--cream);
+      padding: 0.8rem 1rem;
+      font-family: var(--ui-font);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.25s, background 0.25s, color 0.25s;
+    }
+    .nav-btn:hover,
+    .btn:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.05);
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, #f4efe7, #ddd4c8);
+      color: var(--ink);
+      border-color: transparent;
+    }
+    .btn.primary:hover {
+      background: linear-gradient(135deg, #ffffff, #ebe4d7);
+    }
+    .btn.active {
+      border-color: rgba(255,255,255,0.34);
+      background: rgba(255,255,255,0.08);
+    }
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 2rem;
+      margin: 2rem 0 2.5rem;
+    }
+    .eyebrow {
+      font-family: var(--ui-font);
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-family: var(--display-font);
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      line-height: 0.92;
+      letter-spacing: 0.05em;
+    }
+    .hero p {
+      max-width: 520px;
+      margin-top: 1rem;
+      color: rgba(237,232,223,0.62);
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+    .badge {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      padding: 0.8rem 1rem;
+      font-family: var(--ui-font);
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kpi {
+      padding: 1.15rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(20,18,24,0.72);
+    }
+    .kpi-value {
+      font-family: var(--display-font);
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+    }
+    .kpi-label {
+      margin-top: 0.5rem;
+      font-family: var(--ui-font);
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(330px, 0.9fr);
+      gap: 1.25rem;
+    }
+    .card {
+      background: rgba(20,18,24,0.78);
+      border: 1px solid var(--border);
+      padding: 1.4rem;
+    }
+    .card-title {
+      font-family: var(--ui-font);
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr auto;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--cream);
+      padding: 0.75rem 0.85rem;
+      font-family: var(--brand-font);
+      font-size: 0.88rem;
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 880px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0.8rem 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      font-family: var(--ui-font);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    td {
+      font-size: 0.82rem;
+    }
+    td input,
+    td select,
+    td textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--cream);
+      padding: 0.5rem 0.55rem;
+      font-family: var(--brand-font);
+      font-size: 0.8rem;
+    }
+    td textarea { min-height: 72px; resize: vertical; }
+    .row-actions {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .mini-btn {
+      padding: 0.5rem 0.65rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--cream);
+      font-family: var(--ui-font);
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .mini-btn.save {
+      color: #d8f3dc;
+      border-color: rgba(90,168,105,0.35);
+    }
+    .mini-btn.danger {
+      color: #f6c1c1;
+      border-color: rgba(246,193,193,0.25);
+    }
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .availability-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .meta {
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      margin-bottom: 1rem;
+      line-height: 1.7;
+      color: rgba(237,232,223,0.72);
+    }
+    .meta strong {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-family: var(--ui-font);
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--cream);
+    }
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 0.5rem;
+    }
+    .slot-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--cream);
+      padding: 0.75rem;
+      font-family: var(--ui-font);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      cursor: pointer;
+    }
+    .slot-btn.off {
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
+      border-color: rgba(255,255,255,0.18);
+    }
+    .upcoming {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .upcoming li {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 0.7rem;
+    }
+    .upcoming small {
+      color: var(--muted);
+      font-family: var(--ui-font);
+      letter-spacing: 0.08em;
+    }
+    .empty {
+      padding: 1rem;
+      border: 1px dashed rgba(255,255,255,0.12);
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .kpis { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 760px) {
+      .shell { padding: 1.2rem 1rem 4rem; }
+      .hero { flex-direction: column; align-items: flex-start; }
+      .filters,
+      .availability-grid,
+      .kpis { grid-template-columns: 1fr; }
+      table { min-width: 760px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <a href="../index.html" class="brand-main">Judin</a>
+        <div class="brand-sub">Tattoo Atelier — Panel Admina</div>
+      </div>
+      <div class="topbar-actions">
+        <a class="nav-btn" href="../index.html">Wróć do strony</a>
+        <button class="btn" id="adminEditToggle" type="button">Tryb edycji: Wył.</button>
+        <button class="btn primary" id="adminResetBtn" type="button">Przywróć dane testowe</button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Zarządzanie rezerwacjami</div>
+        <h1>Dashboard<br>Rezerwacji</h1>
+        <p>Tu możesz przeglądać nowe zapytania, edytować dane klientów, filtrować wizyty i zmieniać dostępność godzin w kalendarzu bez żadnego logowania.</p>
+      </div>
+      <div class="badge">Widok lokalny — zmiany zapisują się w przeglądarce</div>
+    </div>
+
+    <div class="kpis" id="adminKpis"></div>
+
+    <div class="layout">
+      <div class="card">
+        <div class="card-title">Wizyty klientów</div>
+        <div class="filters">
+          <div class="field"><input id="searchInput" type="text" placeholder="Szukaj po imieniu, telefonie, emailu lub usłudze" /></div>
+          <div class="field">
+            <select id="statusFilter">
+              <option value="all">Wszystkie statusy</option>
+              <option value="Nowa">Nowa</option>
+              <option value="Potwierdzona">Potwierdzona</option>
+              <option value="W trakcie ustaleń">W trakcie ustaleń</option>
+              <option value="Zrealizowana">Zrealizowana</option>
+              <option value="Anulowana">Anulowana</option>
+            </select>
+          </div>
+          <div class="field">
+            <select id="dateFilter">
+              <option value="all">Wszystkie daty</option>
+              <option value="upcoming">Nadchodzące</option>
+              <option value="today">Dziś</option>
+              <option value="past">Minione</option>
+            </select>
+          </div>
+          <button class="btn" id="clearFiltersBtn" type="button">Wyczyść</button>
+        </div>
+        <div class="table-wrap" id="adminAppointmentsWrap"></div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <div class="card-title">Dostępność w kalendarzu</div>
+          <div class="availability-grid">
+            <div class="field">
+              <input id="availabilityDate" type="date" />
+            </div>
+            <button class="btn" id="toggleDayBlockBtn" type="button">Przełącz niedostępny dzień</button>
+          </div>
+          <div class="meta" id="availabilityMeta"></div>
+          <div class="slot-grid" id="availabilitySlots"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Najbliższe wizyty</div>
+          <ul class="upcoming" id="adminUpcomingList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MONTHS_PL = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+    const SLOTS = ['10:00','11:30','13:00','14:30','16:00','17:30'];
+    const STORAGE_KEY = 'judin-admin-data-v2';
+    const STATUS_OPTIONS = ['Nowa', 'Potwierdzona', 'W trakcie ustaleń', 'Zrealizowana', 'Anulowana'];
+
+    const adminEditToggle = document.getElementById('adminEditToggle');
+    const adminResetBtn = document.getElementById('adminResetBtn');
+    const adminKpis = document.getElementById('adminKpis');
+    const adminAppointmentsWrap = document.getElementById('adminAppointmentsWrap');
+    const adminUpcomingList = document.getElementById('adminUpcomingList');
+    const availabilityDateInput = document.getElementById('availabilityDate');
+    const availabilityMeta = document.getElementById('availabilityMeta');
+    const availabilitySlots = document.getElementById('availabilitySlots');
+    const toggleDayBlockBtn = document.getElementById('toggleDayBlockBtn');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+    function toKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    }
+    function addDays(baseDate, amount) {
+      const date = new Date(baseDate);
+      date.setDate(date.getDate() + amount);
+      return date;
+    }
+    function getTodayDate() {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      return today;
+    }
+    function formatDateLabel(dateKey) {
+      const [year, month, day] = dateKey.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+    function createDefaultState() {
+      const today = getTodayDate();
+      const firstDate = toKey(addDays(today, 1));
+      const secondDate = toKey(addDays(today, 2));
+      const thirdDate = toKey(addDays(today, 4));
+      const fullDayOff = toKey(addDays(today, 6));
+      return {
+        availability: {
+          blockedDates: [fullDayOff],
+          blockedSlots: {
+            [firstDate]: ['17:30'],
+            [secondDate]: ['10:00', '11:30'],
+            [thirdDate]: ['16:00']
+          }
+        },
+        appointments: [
+          {
+            id: 'APT-1001',
+            name: 'Karolina Maj',
+            phone: '+48 501 210 310',
+            email: 'karolina.maj@email.com',
+            service: 'Tatuaż średni',
+            instagram: '@karola.maj',
+            notes: 'Florystyczny motyw na przedramię, czarno-szary.',
+            date: firstDate,
+            time: '13:00',
+            status: 'Potwierdzona'
+          },
+          {
+            id: 'APT-1002',
+            name: 'Michał Wrona',
+            phone: '+48 533 121 515',
+            email: 'm.wrona@email.com',
+            service: 'Konsultacja',
+            instagram: 'Messenger',
+            notes: 'Cover starego małego tatuażu na barku.',
+            date: secondDate,
+            time: '14:30',
+            status: 'Nowa'
+          },
+          {
+            id: 'APT-1003',
+            name: 'Julia Sokołowska',
+            phone: '+48 606 119 772',
+            email: 'j.sokolowska@email.com',
+            service: 'Tatuaż duży',
+            instagram: '@jula.soko',
+            notes: 'Projekt rękawa, pierwsza sesja.',
+            date: thirdDate,
+            time: '11:30',
+            status: 'W trakcie ustaleń'
+          }
+        ]
+      };
+    }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return createDefaultState();
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.appointments) || !parsed.availability) return createDefaultState();
+        parsed.availability.blockedDates = Array.isArray(parsed.availability.blockedDates) ? parsed.availability.blockedDates : [];
+        parsed.availability.blockedSlots = parsed.availability.blockedSlots || {};
+        return parsed;
+      } catch {
+        return createDefaultState();
+      }
+    }
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    function sortAppointments() {
+      state.appointments.sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+    }
+    function nextAppointmentId() {
+      const max = state.appointments.reduce((highest, item) => {
+        const value = Number(String(item.id || '').replace(/\D/g, ''));
+        return Number.isFinite(value) ? Math.max(highest, value) : highest;
+      }, 1000);
+      return `APT-${max + 1}`;
+    }
+    function getAppointmentsForDate(dateKey) {
+      return state.appointments.filter(item => item.date === dateKey && item.status !== 'Anulowana');
+    }
+    function getTakenSlots(dateKey) {
+      return getAppointmentsForDate(dateKey).map(item => item.time);
+    }
+    function isDayBlocked(dateKey) {
+      return state.availability.blockedDates.includes(dateKey);
+    }
+    function getBlockedSlots(dateKey) {
+      return state.availability.blockedSlots[dateKey] || [];
+    }
+    function getFilteredAppointments() {
+      const search = searchInput.value.trim().toLowerCase();
+      const status = statusFilter.value;
+      const dateMode = dateFilter.value;
+      const todayKey = toKey(getTodayDate());
+      return state.appointments.filter(item => {
+        const searchable = `${item.name} ${item.phone} ${item.email} ${item.service} ${item.instagram || ''} ${item.notes || ''}`.toLowerCase();
+        const searchMatch = !search || searchable.includes(search);
+        const statusMatch = status === 'all' || item.status === status;
+        let dateMatch = true;
+        if (dateMode === 'today') dateMatch = item.date === todayKey;
+        if (dateMode === 'upcoming') dateMatch = item.date >= todayKey;
+        if (dateMode === 'past') dateMatch = item.date < todayKey;
+        return searchMatch && statusMatch && dateMatch;
+      });
+    }
+
+    let state = loadState();
+    let adminEditMode = false;
+    let availabilityFocusDate = state.appointments[0]?.date || toKey(addDays(getTodayDate(), 1));
+
+    function renderKpis() {
+      const todayKey = toKey(getTodayDate());
+      const active = state.appointments.filter(item => item.status !== 'Anulowana');
+      const pending = active.filter(item => item.status === 'Nowa').length;
+      const upcoming = active.filter(item => item.date >= todayKey).length;
+      const confirmed = active.filter(item => item.status === 'Potwierdzona').length;
+      const blockedDays = state.availability.blockedDates.length;
+      adminKpis.innerHTML = `
+        <div class="kpi"><div class="kpi-value">${active.length}</div><div class="kpi-label">Wszystkie wizyty</div></div>
+        <div class="kpi"><div class="kpi-value">${upcoming}</div><div class="kpi-label">Nadchodzące</div></div>
+        <div class="kpi"><div class="kpi-value">${pending}</div><div class="kpi-label">Nowe zapytania</div></div>
+        <div class="kpi"><div class="kpi-value">${confirmed + blockedDays}</div><div class="kpi-label">Potwierdzone / blokady</div></div>
+      `;
+    }
+
+    function renderAppointments() {
+      sortAppointments();
+      const appointments = getFilteredAppointments();
+      if (!appointments.length) {
+        adminAppointmentsWrap.innerHTML = '<div class="empty">Brak wyników dla wybranych filtrów.</div>';
+        return;
+      }
+      const rows = appointments.map(item => `
+        <tr data-id="${item.id}">
+          <td>${item.id}</td>
+          <td><input data-field="date" type="date" value="${item.date}" ${adminEditMode ? '' : 'disabled'}></td>
+          <td><select data-field="time" ${adminEditMode ? '' : 'disabled'}>${SLOTS.map(slot => `<option value="${slot}" ${slot === item.time ? 'selected' : ''}>${slot}</option>`).join('')}</select></td>
+          <td>
+            <input data-field="name" type="text" value="${item.name}" ${adminEditMode ? '' : 'disabled'}>
+            <input data-field="phone" type="text" value="${item.phone}" ${adminEditMode ? '' : 'disabled'} style="margin-top:0.45rem;">
+            <input data-field="email" type="text" value="${item.email}" ${adminEditMode ? '' : 'disabled'} style="margin-top:0.45rem;">
+          </td>
+          <td>
+            <select data-field="service" ${adminEditMode ? '' : 'disabled'}>
+              ${['Konsultacja','Tatuaż mały','Tatuaż średni','Tatuaż duży','Poprawka / cover'].map(service => `<option value="${service}" ${service === item.service ? 'selected' : ''}>${service}</option>`).join('')}
+            </select>
+            <input data-field="instagram" type="text" value="${item.instagram || ''}" ${adminEditMode ? '' : 'disabled'} style="margin-top:0.45rem;">
+          </td>
+          <td><textarea data-field="notes" ${adminEditMode ? '' : 'disabled'}>${item.notes || ''}</textarea></td>
+          <td><select data-field="status" ${adminEditMode ? '' : 'disabled'}>${STATUS_OPTIONS.map(status => `<option value="${status}" ${status === item.status ? 'selected' : ''}>${status}</option>`).join('')}</select></td>
+          <td>
+            <div class="row-actions">
+              <button class="mini-btn save" type="button" data-action="save" ${adminEditMode ? '' : 'disabled'}>Zapisz</button>
+              <button class="mini-btn danger" type="button" data-action="delete">Usuń</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      adminAppointmentsWrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Data</th>
+              <th>Godz.</th>
+              <th>Klient</th>
+              <th>Usługa</th>
+              <th>Opis</th>
+              <th>Status</th>
+              <th>Akcje</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      adminAppointmentsWrap.querySelectorAll('[data-action="save"]').forEach(button => {
+        button.addEventListener('click', () => {
+          const row = button.closest('tr');
+          const appointment = state.appointments.find(item => item.id === row.dataset.id);
+          if (!appointment) return;
+          row.querySelectorAll('[data-field]').forEach(field => {
+            appointment[field.dataset.field] = field.value.trim();
+          });
+          saveState();
+          refresh();
+        });
+      });
+      adminAppointmentsWrap.querySelectorAll('[data-action="delete"]').forEach(button => {
+        button.addEventListener('click', () => {
+          const rowId = button.closest('tr').dataset.id;
+          state.appointments = state.appointments.filter(item => item.id !== rowId);
+          saveState();
+          refresh();
+        });
+      });
+    }
+
+    function renderUpcoming() {
+      const todayKey = toKey(getTodayDate());
+      const items = state.appointments
+        .filter(item => item.date >= todayKey && item.status !== 'Anulowana')
+        .sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`))
+        .slice(0, 5);
+      adminUpcomingList.innerHTML = items.length ? items.map(item => `
+        <li>
+          <div>
+            <strong>${item.name}</strong><br>
+            <small>${formatDateLabel(item.date)} — ${item.time}</small>
+          </div>
+          <small>${item.status}</small>
+        </li>
+      `).join('') : '<li><span>Brak nadchodzących wizyt.</span><small>—</small></li>';
+    }
+
+    function ensureAvailabilityDate() {
+      if (!availabilityFocusDate) availabilityFocusDate = toKey(addDays(getTodayDate(), 1));
+      availabilityDateInput.value = availabilityFocusDate;
+    }
+
+    function renderAvailability() {
+      ensureAvailabilityDate();
+      const blockedDay = isDayBlocked(availabilityFocusDate);
+      const blockedSlots = state.availability.blockedSlots[availabilityFocusDate] || [];
+      availabilityMeta.innerHTML = `
+        <strong>Status dnia</strong>
+        ${formatDateLabel(availabilityFocusDate)} — ${blockedDay ? 'cały dzień zablokowany' : 'dzień aktywny'}
+      `;
+      toggleDayBlockBtn.classList.toggle('active', blockedDay);
+      availabilitySlots.innerHTML = SLOTS.map(slot => `
+        <button class="slot-btn ${blockedSlots.includes(slot) ? 'off' : ''}" type="button" data-slot="${slot}">${slot}</button>
+      `).join('');
+      availabilitySlots.querySelectorAll('.slot-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const slot = button.dataset.slot;
+          const current = new Set(state.availability.blockedSlots[availabilityFocusDate] || []);
+          if (current.has(slot)) current.delete(slot); else current.add(slot);
+          if (current.size) state.availability.blockedSlots[availabilityFocusDate] = Array.from(current).sort();
+          else delete state.availability.blockedSlots[availabilityFocusDate];
+          saveState();
+          refresh();
+        });
+      });
+    }
+
+    function refresh() {
+      renderKpis();
+      renderAppointments();
+      renderUpcoming();
+      renderAvailability();
+    }
+
+    adminEditToggle.addEventListener('click', () => {
+      adminEditMode = !adminEditMode;
+      adminEditToggle.textContent = `Tryb edycji: ${adminEditMode ? 'Wł.' : 'Wył.'}`;
+      adminEditToggle.classList.toggle('active', adminEditMode);
+      renderAppointments();
+    });
+    adminResetBtn.addEventListener('click', () => {
+      state = createDefaultState();
+      availabilityFocusDate = state.appointments[0]?.date || toKey(addDays(getTodayDate(), 1));
+      saveState();
+      refresh();
+    });
+    availabilityDateInput.addEventListener('change', () => {
+      availabilityFocusDate = availabilityDateInput.value;
+      renderAvailability();
+    });
+    toggleDayBlockBtn.addEventListener('click', () => {
+      ensureAvailabilityDate();
+      const set = new Set(state.availability.blockedDates);
+      if (set.has(availabilityFocusDate)) set.delete(availabilityFocusDate);
+      else set.add(availabilityFocusDate);
+      state.availability.blockedDates = Array.from(set).sort();
+      saveState();
+      refresh();
+    });
+
+    [searchInput, statusFilter, dateFilter].forEach(control => {
+      control.addEventListener('input', renderAppointments);
+      control.addEventListener('change', renderAppointments);
+    });
+    clearFiltersBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      statusFilter.value = 'all';
+      dateFilter.value = 'all';
+      renderAppointments();
+    });
+
+    refresh();
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+node_modules/
+*.log
+.env
+.env.*
+.DS_Store
+Thumbs.db
+__admin_check.js
+__temp_check.js
