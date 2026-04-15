@@ -1229,8 +1229,8 @@
     @media (hover: none), (pointer: coarse) {
       body, a, button, [role="button"], .gallery-strip-item, .cal-day, .time-slot { cursor: auto; }
       .cur-dot, .cur-ring { display: none; }
-      .intro-video { display: none !important; }
-      .intro-fallback { display: block; }
+      .intro-video.mobile-hidden { display: none !important; }
+      .intro-fallback.mobile-visible { display: block; }
       .showreel-play { cursor: auto; }
     }
   </style>
@@ -1500,7 +1500,7 @@
           poster="./images/hero-main.jpg"
           disablepictureinpicture
         >
-          <source src="./judin-reel.mp4" type="video/mp4" />
+          <source src="./judin-reel-mobile.mp4" type="video/mp4" />
         </video>
         <div class="showreel-overlay">
           <button class="showreel-play" id="showreelPlay" aria-label="Odtwórz showreel">
