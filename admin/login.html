@@ -10,10 +10,12 @@
   <style>
     :root {
       --ink: #07060a;
-      --cream: #ede8df;
-      --muted: #8d8791;
-      --border: rgba(255,255,255,0.12);
-      --border-hover: rgba(255,255,255,0.24);
+      --cream: #f3dfc4;
+      --muted: #b69672;
+      --accent: #d8a168;
+      --accent-soft: #f6d4a1;
+      --border: rgba(216,161,104,0.18);
+      --border-hover: rgba(246,212,161,0.34);
       --brand-font: "Marcellus", serif;
       --display-font: "Pirata One", serif;
       --ui-font: "Barlow Condensed", sans-serif;
@@ -28,8 +30,10 @@
       color: var(--cream);
       font-family: var(--brand-font);
       background:
-        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.08), transparent 24%),
-        linear-gradient(180deg, #0c0a10 0%, #07060a 100%);
+        radial-gradient(circle at 50% 18%, rgba(246,212,161,0.12), transparent 16%),
+        radial-gradient(circle at 50% 42%, rgba(216,161,104,0.14), transparent 28%),
+        linear-gradient(180deg, rgba(8,6,5,0.9) 0%, rgba(7,6,10,0.97) 100%),
+        url("../images/judin-gold-reference.jpeg") center top / cover no-repeat fixed;
     }
     body::before {
       content: "";
@@ -45,9 +49,9 @@
       position: relative;
       z-index: 1;
       border: 1px solid var(--border);
-      background: rgba(15,13,18,0.88);
+      background: rgba(17,11,8,0.9);
       padding: 2rem;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.48);
     }
     .eyebrow {
       font-family: var(--ui-font);
@@ -118,14 +122,14 @@
     button:hover,
     .back-link:hover {
       border-color: var(--border-hover);
-      background: rgba(255,255,255,0.05);
+      background: rgba(216,161,104,0.08);
     }
     button:active,
     .back-link:active {
       transform: scale(0.97);
     }
     button.primary {
-      background: linear-gradient(135deg, #f4efe7, #ddd4c8);
+      background: linear-gradient(135deg, #f2c98f, #c88a4d);
       color: var(--ink);
       border-color: transparent;
     }

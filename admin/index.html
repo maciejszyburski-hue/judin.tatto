@@ -10,12 +10,14 @@
   <style>
     :root {
       --ink: #07060A;
-      --dark: #0f0d12;
-      --panel: #141218;
-      --cream: #ede8df;
-      --muted: #8d8791;
-      --border: rgba(255,255,255,0.1);
-      --border-hover: rgba(255,255,255,0.22);
+      --dark: #110b08;
+      --panel: #17100d;
+      --cream: #f3dfc4;
+      --muted: #b69672;
+      --accent: #d8a168;
+      --accent-soft: #f6d4a1;
+      --border: rgba(216,161,104,0.16);
+      --border-hover: rgba(246,212,161,0.34);
       --brand-font: 'Marcellus', serif;
       --display-font: 'Pirata One', serif;
       --ui-font: 'Barlow Condensed', sans-serif;
@@ -24,8 +26,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background:
-        radial-gradient(circle at 20% 0%, rgba(255,255,255,0.05), transparent 24%),
-        linear-gradient(180deg, #0b0a0e 0%, #07060a 100%);
+        radial-gradient(circle at 50% 18%, rgba(246,212,161,0.11), transparent 16%),
+        radial-gradient(circle at 50% 42%, rgba(216,161,104,0.13), transparent 30%),
+        linear-gradient(180deg, rgba(8,6,5,0.9) 0%, rgba(7,6,10,0.97) 100%),
+        url("../images/judin-gold-reference.jpeg") center top / cover no-repeat fixed;
       color: var(--cream);
       font-family: var(--brand-font);
       min-height: 100vh;
@@ -95,18 +99,18 @@
     }
     .nav-btn:hover, .btn:hover {
       border-color: var(--border-hover);
-      background: rgba(255,255,255,0.05);
+      background: rgba(216,161,104,0.08);
     }
     .nav-btn:active, .btn:active {
       transform: scale(0.96);
       opacity: 0.85;
     }
     .btn.primary {
-      background: linear-gradient(135deg, #f4efe7, #ddd4c8);
+      background: linear-gradient(135deg, #f2c98f, #c88a4d);
       color: var(--ink);
       border-color: transparent;
     }
-    .btn.primary:hover { background: linear-gradient(135deg, #ffffff, #ebe4d7); }
+    .btn.primary:hover { background: linear-gradient(135deg, #f8ddb6, #df9f5c); }
     .btn.primary:active { transform: scale(0.96); opacity: 0.9; }
 
     /* ── Hero ── */
@@ -160,7 +164,7 @@
     .kpi {
       padding: 1.2rem 1.4rem;
       border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(20,18,24,0.7);
+      background: rgba(23,16,13,0.78);
       transition: border-color 0.2s ease;
     }
     .kpi:hover { border-color: rgba(255,255,255,0.12); }
@@ -180,7 +184,7 @@
 
     /* ── Cards ── */
     .card {
-      background: rgba(20,18,24,0.75);
+      background: rgba(23,16,13,0.82);
       border: 1px solid var(--border);
       padding: 1.5rem;
     }
