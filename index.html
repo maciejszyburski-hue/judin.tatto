@@ -593,6 +593,88 @@
     .about-text {
       font-size: 0.92rem; color: rgba(237,232,223,0.6); line-height: 1.95; margin-bottom: 1.2rem;
     }
+    .studio-media { position: relative; }
+    .studio-video-frame {
+      position: relative;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      overflow: hidden;
+      box-shadow: 0 36px 90px rgba(0,0,0,0.48);
+    }
+    .studio-video-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(7,6,10,0.06), rgba(7,6,10,0.36));
+      pointer-events: none;
+      z-index: 1;
+    }
+    .studio-video {
+      width: 100%;
+      display: block;
+      aspect-ratio: 9 / 16;
+      object-fit: cover;
+      background: #000;
+    }
+    .studio-caption {
+      position: absolute;
+      left: 1.2rem;
+      bottom: 1.2rem;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.8rem 1rem;
+      background: rgba(7,6,10,0.72);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      font-family: var(--ui-font);
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--cream);
+    }
+    .studio-caption-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--azure);
+      box-shadow: 0 0 12px rgba(255,255,255,0.25);
+    }
+    .studio-list {
+      list-style: none;
+      display: grid;
+      gap: 0.85rem;
+      margin: 2rem 0;
+    }
+    .studio-list li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 0.8rem;
+      align-items: start;
+      color: rgba(237,232,223,0.74);
+      font-size: 0.88rem;
+      line-height: 1.8;
+    }
+    .studio-list li::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      margin-top: 0.6rem;
+      border-radius: 50%;
+      background: var(--azure);
+      box-shadow: 0 0 12px rgba(255,255,255,0.2);
+    }
+    .studio-note {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-family: var(--ui-font);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
 
     /* Skill bars */
     .skills { margin: 2.5rem 0; display: flex; flex-direction: column; gap: 1.1rem; }
@@ -641,8 +723,14 @@
       transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), filter 0.5s;
       display: block;
     }
+    .strip-item.rotate-preview img {
+      transform: rotate(90deg) scale(1.34);
+    }
     .strip-item:hover img {
       transform: scale(1.06); filter: grayscale(0%) contrast(1.15) brightness(1);
+    }
+    .strip-item.rotate-preview:hover img {
+      transform: rotate(90deg) scale(1.38);
     }
     .strip-label {
       position: absolute; inset: 0;
@@ -1204,6 +1292,14 @@
       .strip-item:first-child { width: min(78vw, 320px); }
       .process-grid { grid-template-columns: 1fr; }
       .pricing-inner { margin-top: 2.5rem; }
+      .studio-video { min-height: 480px; }
+      .studio-caption {
+        left: 0.9rem;
+        right: 0.9rem;
+        bottom: 0.9rem;
+        justify-content: center;
+        text-align: center;
+      }
       .pricing-table, .pricing-table tbody, .pricing-table tr, .pricing-table td { display: block; width: 100%; }
       .pricing-table thead { display: none; }
       .pricing-table td { padding: 1.1rem 0 0.25rem; }
@@ -1376,52 +1472,41 @@
 
   <!-- ══════════════ ABOUT ══════════════ -->
   <section id="about">
-    <div class="about-bg-word">O</div>
+    <div class="about-bg-word">Studio</div>
     <div class="about-grid">
-      <div class="photo-wrap reveal-left">
-        <div class="photo-tilt" id="aboutTilt">
-          <div class="photo-frame"></div>
-          <img class="photo-main"
-            src="./images/hero-main.jpg"
-            alt="Jan Judin — artysta tatuażu, studio Gdańsk"
-            width="1400" height="788" loading="lazy"
-          />
-          <img class="photo-overlay"
-            src="./images/hero-overlay.jpg"
-            alt="Szczegół tatuażu — samuraj forearm"
-            width="700" height="394" loading="lazy"
-          />
-          <div class="photo-badge">Gdańsk ✦</div>
+      <div class="studio-media reveal-left">
+        <div class="studio-video-frame">
+          <video
+            class="studio-video"
+            id="studioNameVideo"
+            autoplay
+            muted
+            loop
+            playsinline
+            webkit-playsinline
+            preload="metadata"
+            disablepictureinpicture
+          >
+            <source src="./studio-name.mp4" type="video/mp4" />
+          </video>
+          <div class="studio-caption">
+            <span class="studio-caption-dot"></span>
+            <span>Judin Tattoo Atelier — Gdańsk</span>
+          </div>
         </div>
       </div>
 
       <div class="reveal-right delay-2">
-        <div class="section-label">O artyście</div>
-        <h2 class="section-heading">Jan <em>Judin</em><br>Tattoo Artist</h2>
-        <p class="about-text">Tatuuję od 2014 roku. Najbliższy jest mi realizm: portrety, zwierzęta, mocny kontrast, miękkie przejścia i detale, które z bliska budują prawdziwy obraz.</p>
-        <p class="about-text">Każdy realistyczny projekt zaczyna się od dobrej referencji i rozmowy o znaczeniu tatuażu. Dopasowuję kompozycję do miejsca na ciele, światła, skóry i skali, żeby efekt był czytelny przez lata.</p>
-        <div class="skills">
-          <div class="skill-row">
-            <span class="skill-name">Realism</span>
-            <div class="skill-track"><div class="skill-fill" data-fill="95"></div></div>
-            <span class="skill-pct">95</span>
-          </div>
-          <div class="skill-row">
-            <span class="skill-name">Portraits</span>
-            <div class="skill-track"><div class="skill-fill" data-fill="90"></div></div>
-            <span class="skill-pct">90</span>
-          </div>
-          <div class="skill-row">
-            <span class="skill-name">Black & Grey</span>
-            <div class="skill-track"><div class="skill-fill" data-fill="85"></div></div>
-            <span class="skill-pct">85</span>
-          </div>
-          <div class="skill-row">
-            <span class="skill-name">Color Realism</span>
-            <div class="skill-track"><div class="skill-fill" data-fill="88"></div></div>
-            <span class="skill-pct">88</span>
-          </div>
-        </div>
+        <div class="section-label">Moje studio</div>
+        <h2 class="section-heading">Przestrzeń, w której<br><em>powstaje detal</em></h2>
+        <p class="about-text">To tutaj zaczyna się każda konsultacja, szkic i realizacja. Studio Judin Tattoo jest zbudowane wokół spokoju, czystości i światła, które pozwalają skupić się na projekcie i komforcie klienta.</p>
+        <p class="about-text">Ta sekcja bardziej pokazuje wejście do atelier niż klasyczne „o artyście”. Chodzi o klimat miejsca, charakter znaku i pierwsze wrażenie jeszcze zanim zacznie się sama sesja.</p>
+        <ul class="studio-list">
+          <li>Sterylne, uporządkowane stanowisko pracy i indywidualne podejście do każdej konsultacji.</li>
+          <li>Przestrzeń zaprojektowana pod realizm, spokój i komfort podczas dłuższych sesji.</li>
+          <li>Miejsce, które od początku ma budować zaufanie i poczucie jakości całego doświadczenia.</li>
+        </ul>
+        <div class="studio-note">Judin Tattoo Atelier — konsultacje i sesje w Gdańsku.</div>
         <a href="#booking" class="btn-primary magnetic" style="display:inline-flex;margin-top:1.5rem;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.77a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
           <span>Umów konsultację</span>
@@ -1441,15 +1526,15 @@
     </div>
 
     <div class="strip-scroll" id="stripScroll">
-      <div class="strip-item">
+      <div class="strip-item rotate-preview">
         <img src="./images/g1-tiger-sleeve.jpg" alt="Realistyczny rękaw — tygrys" loading="lazy" width="900" height="507" />
         <div class="strip-label"><span>Animal Realism</span></div>
       </div>
-      <div class="strip-item">
+      <div class="strip-item rotate-preview">
         <img src="./images/g2-skull-chest.jpg" alt="Tatuaż klatka piersiowa — czaszka" loading="lazy" width="900" height="507" />
         <div class="strip-label"><span>Skull Realism</span></div>
       </div>
-      <div class="strip-item">
+      <div class="strip-item rotate-preview">
         <img src="./images/g3-color-fire.jpg" alt="Kolorowy tatuaż — ogień i kostki" loading="lazy" width="900" height="507" />
         <div class="strip-label"><span>Color Realism</span></div>
       </div>
@@ -1893,6 +1978,21 @@
   });
 
   /* Showreel mute toggle */
+  const studioNameVideo = document.getElementById('studioNameVideo');
+  if (studioNameVideo) {
+    const tryPlayStudio = () => {
+      const playPromise = studioNameVideo.play();
+      if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+    };
+    tryPlayStudio();
+    studioNameVideo.addEventListener('loadedmetadata', tryPlayStudio);
+    studioNameVideo.addEventListener('canplay', tryPlayStudio);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') tryPlayStudio();
+    });
+    document.addEventListener('touchstart', tryPlayStudio, { once: true });
+  }
+
   const showreelVideo = document.querySelector('.showreel-video');
   const showreelMute  = document.getElementById('showreelMute');
   const showreelPlay  = document.getElementById('showreelPlay');
