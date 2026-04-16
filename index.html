@@ -1463,7 +1463,7 @@
         Realistic Tattoo Studio — Gdańsk
       </div>
       <h1 class="hero-title" id="heroTitle">Judin</h1>
-      <span class="hero-italic">Realism since 2014</span>
+      <span class="hero-italic">Realism since 2016</span>
       <div class="hero-bottom">
         <p class="hero-desc">Realistyczne tatuaże tworzone z precyzją: portrety, zwierzęta, cienie i duże kompozycje dopasowane do ciała. Umów konsultację i zamień pomysł w obraz na skórze.</p>
         <div class="hero-actions">
@@ -1517,7 +1517,8 @@
             loop
             playsinline
             webkit-playsinline
-            preload="metadata"
+            preload="auto"
+            poster="./images/studio-name-poster.jpg"
             disablepictureinpicture
           >
             <source src="./studio-name.mp4" type="video/mp4" />
@@ -1614,8 +1615,8 @@
         <video
           class="showreel-video"
           autoplay muted loop playsinline webkit-playsinline
-          preload="metadata"
-          poster="./images/hero-main.jpg"
+          preload="auto"
+          poster="./images/showreel-poster.jpg"
           disablepictureinpicture
         >
           <source src="./judin-reel-mobile.mp4" type="video/mp4" />
@@ -2040,50 +2041,62 @@
     sessionStorage.setItem('judinMute', muted ? '1' : '0');
     applyVideoMutePreference();
     syncMuteUI();
-    ensureVideoPlayback(studioNameVideo);
-    ensureVideoPlayback(showreelVideo, showreelWrap);
+    if (studioNameVideo && isInViewport && isInViewport(studioNameVideo)) tryPlay(studioNameVideo);
+    if (showreelVideo   && isInViewport && isInViewport(showreelVideo))   tryPlay(showreelVideo, showreelWrap);
   });
 
-  /* Showreel mute toggle */
-  if (studioNameVideo) {
-    const tryPlayStudio = () => {
-      ensureVideoPlayback(studioNameVideo);
-    };
-    tryPlayStudio();
-    studioNameVideo.addEventListener('loadedmetadata', tryPlayStudio);
-    studioNameVideo.addEventListener('canplay', tryPlayStudio);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') tryPlayStudio();
+  /* ── Video playback: IntersectionObserver for reliable mobile autoplay ── */
+  const tryPlay = (video, wrap) => {
+    if (!video) return;
+    const p = video.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => { if (wrap) wrap.classList.remove('needs-play'); })
+       .catch(() => { if (wrap) wrap.classList.add('needs-play'); });
+    }
+  };
+
+  // Play/pause as each video enters or leaves the viewport
+  const videoViewObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tryPlay(e.target, e.target === showreelVideo ? showreelWrap : null);
+      } else {
+        e.target.pause();
+      }
     });
-    document.addEventListener('touchstart', tryPlayStudio, { once: true });
+  }, { threshold: 0.25 });
+
+  if (studioNameVideo) videoViewObs.observe(studioNameVideo);
+  if (showreelVideo)   videoViewObs.observe(showreelVideo);
+
+  // Resume after tab switch
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (studioNameVideo && isInViewport(studioNameVideo)) tryPlay(studioNameVideo);
+    if (showreelVideo   && isInViewport(showreelVideo))   tryPlay(showreelVideo, showreelWrap);
+  });
+
+  function isInViewport(el) {
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < window.innerHeight;
   }
 
-  if (showreelMute && showreelVideo) {
-    const tryPlayShowreel = () => {
-      ensureVideoPlayback(showreelVideo, showreelWrap);
-    };
+  // Showreel: play button just starts playback (stays muted — let user unmute separately)
+  if (showreelPlay) {
+    showreelPlay.addEventListener('click', () => {
+      tryPlay(showreelVideo, showreelWrap);
+    });
+  }
 
-    tryPlayShowreel();
-    showreelVideo.addEventListener('loadedmetadata', tryPlayShowreel);
-    showreelVideo.addEventListener('canplay', tryPlayShowreel);
+  // Showreel: remove overlay once playing
+  if (showreelVideo) {
     showreelVideo.addEventListener('playing', () => {
       if (showreelWrap) showreelWrap.classList.remove('needs-play');
     });
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') tryPlayShowreel();
-    });
-    document.addEventListener('touchstart', tryPlayShowreel, { once: true });
-    if (showreelPlay) {
-      showreelPlay.addEventListener('click', () => {
-        showreelVideo.controls = true;
-        muted = false;
-        sessionStorage.setItem('judinMute', '0');
-        applyVideoMutePreference();
-        syncMuteUI();
-        tryPlayShowreel();
-      });
-    }
+  }
 
+  // Showreel mute toggle
+  if (showreelMute && showreelVideo) {
     showreelMute.addEventListener('click', () => {
       showreelVideo.muted = !showreelVideo.muted;
       muted = showreelVideo.muted;
@@ -2093,7 +2106,6 @@
       if (introEl) introEl.muted = muted;
       syncMuteUI();
       syncShowreelMuteIcon();
-      tryPlayShowreel();
     });
   }
 
