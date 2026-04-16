@@ -65,10 +65,9 @@
     html { scroll-behavior: smooth; }
     body {
       background:
-        radial-gradient(circle at 50% 18%, rgba(246,212,161,0.12), transparent 16%),
-        radial-gradient(circle at 50% 42%, rgba(216,161,104,0.14), transparent 28%),
-        linear-gradient(180deg, rgba(8,6,5,0.88) 0%, rgba(7,6,10,0.96) 100%),
-        url('./images/judin-gold-reference.jpeg') center top / cover no-repeat;
+        radial-gradient(circle at 50% 18%, rgba(246,212,161,0.08), transparent 16%),
+        radial-gradient(circle at 50% 42%, rgba(216,161,104,0.1), transparent 28%),
+        linear-gradient(180deg, rgba(8,6,5,0.9) 0%, rgba(7,6,10,0.97) 100%);
       color: var(--cream);
       font-family: var(--brand-font);
       font-weight: 300;
@@ -381,22 +380,34 @@
     }
     .hero-bg {
       position: absolute; inset: 0;
-      background:
-        linear-gradient(180deg, rgba(7,6,10,0.32) 0%, rgba(7,6,10,0.72) 72%, rgba(7,6,10,0.92) 100%),
-        radial-gradient(circle at 50% 27%, rgba(246,212,161,0.26), transparent 18%),
-        radial-gradient(circle at 50% 56%, rgba(216,161,104,0.24), transparent 22%),
-        url('./images/judin-gold-reference.jpeg') center 12% / cover no-repeat,
-        linear-gradient(135deg, #0f0e12, #050507);
+      background: linear-gradient(180deg, rgba(7,6,10,0.24) 0%, rgba(7,6,10,0.54) 62%, rgba(7,6,10,0.86) 100%);
       z-index: 0;
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('./images/judin-gold-reference.jpeg') center 1.4rem / min(92vw, 860px) auto no-repeat;
+      opacity: 0.9;
+      filter: saturate(1.02) contrast(1.03) drop-shadow(0 18px 80px rgba(216,161,104,0.24));
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 50% 25%, rgba(246,212,161,0.18), transparent 16%),
+        radial-gradient(circle at 50% 57%, rgba(216,161,104,0.2), transparent 22%),
+        linear-gradient(180deg, rgba(7,6,10,0.04) 0%, rgba(7,6,10,0.36) 68%, rgba(7,6,10,0.84) 100%);
     }
 
     /* Patchwork tattoo pattern — full page bg (SVG set via JS) */
     body::after {
       content: '';
       position: fixed; inset: 0;
-      background-image: var(--flash-bg);
-      background-size: 220px 220px;
-      opacity: 0.05;
+      background-image: var(--flash-bg), url('./images/judin-gold-reference.jpeg');
+      background-size: 220px 220px, min(100vw, 860px) auto;
+      background-position: center top, center 3.8rem;
+      background-repeat: repeat, no-repeat;
+      opacity: 0.11;
       pointer-events: none;
       z-index: 0;
     }
@@ -762,7 +773,7 @@
 
     /* ═══════════════════════════════════ SHOWREEL ═══ */
     #showreel {
-      padding: 6rem 5rem; background: var(--ink); position: relative;
+      padding: 6rem 5rem; background: rgba(7,6,10,0.72); position: relative;
     }
     .showreel-inner { max-width: 1100px; margin: 0 auto; }
     .showreel-inner .section-heading { margin-bottom: 3rem; }
@@ -812,7 +823,7 @@
 
     /* ═══════════════════════════════════ PROCESS ═══ */
     #process {
-      padding: 8rem 5rem; background: var(--dark); position: relative; overflow: hidden;
+      padding: 8rem 5rem; background: rgba(17,11,8,0.76); position: relative; overflow: hidden;
     }
     .process-bg {
       position: absolute; top: 50%; right: -3%;
@@ -894,7 +905,7 @@
     .pricing-note p { font-size: 0.84rem; color: var(--muted); line-height: 1.75; }
 
     /* ═══════════════════════════════════ BOOKING ═══ */
-    #booking { padding: 8rem 5rem; background: var(--dark); }
+    #booking { padding: 8rem 5rem; background: rgba(17,11,8,0.78); }
     .booking-inner {
       max-width: 1100px; margin: 0 auto;
       display: grid; grid-template-columns: 1fr 1.1fr; gap: 6rem; align-items: start;
@@ -1285,10 +1296,21 @@
       .intro-fallback-main { font-size: clamp(4.4rem, 18vw, 7.6rem); }
       .intro-enter { bottom: 2rem; font-size: 0.62rem; letter-spacing: 0.24em; gap: 0.75rem; }
       .intro-enter::before, .intro-enter::after { width: 22px; }
+      .hero-bg::before {
+        background-size: min(98vw, 560px) auto;
+        background-position: center 4rem;
+        opacity: 0.88;
+      }
+      .hero-bg::after {
+        background:
+          radial-gradient(circle at 50% 25%, rgba(246,212,161,0.16), transparent 18%),
+          radial-gradient(circle at 50% 54%, rgba(216,161,104,0.18), transparent 24%),
+          linear-gradient(180deg, rgba(7,6,10,0.18) 0%, rgba(7,6,10,0.52) 62%, rgba(7,6,10,0.88) 100%);
+      }
       .hero-content { padding: 0 1.25rem 5rem; }
       .hero-title { font-size: clamp(3.4rem, 18vw, 8rem); letter-spacing: 0.04em; }
       .hero-italic { font-size: clamp(1.45rem, 9vw, 2.5rem); margin-bottom: 1.6rem; }
-      .hero-desc { max-width: 100%; line-height: 1.75; }
+      .hero-desc { max-width: 100%; line-height: 1.75; font-size: 0.92rem; }
       .btn-primary { width: 100%; justify-content: center; padding: 0.95rem 1.1rem; }
       .strip-header { align-items: flex-start; flex-direction: column; gap: 1.2rem; }
       .strip-footer { align-items: flex-start; flex-direction: column; gap: 1rem; }
@@ -1297,7 +1319,7 @@
       .strip-item:first-child { width: min(78vw, 320px); }
       .process-grid { grid-template-columns: 1fr; }
       .pricing-inner { margin-top: 2.5rem; }
-      .studio-video { min-height: 480px; }
+      .studio-video { min-height: 480px; object-fit: cover; }
       .studio-caption {
         left: 0.9rem;
         right: 0.9rem;
@@ -1312,7 +1334,7 @@
       .price-value { font-size: 1.35rem; letter-spacing: 0.08em; }
       .price-badge { display: inline-block; margin: 0.45rem 0 0; }
       .pricing-note { padding: 1.2rem; align-items: flex-start; }
-      .showreel-video { aspect-ratio: 9 / 13; min-height: 440px; }
+      .showreel-video { aspect-ratio: 9 / 13; min-height: 520px; object-fit: cover; }
       .showreel-mute { bottom: 1rem; right: 1rem; }
       .showreel-play { width: 68px; height: 68px; }
       .cal { padding: 1rem; }
@@ -1894,7 +1916,7 @@
 
   <script>
   /* ══════ WEB AUDIO API ══════ */
-  let ctx = null, muted = true;
+  let ctx = null, muted = sessionStorage.getItem('judinMute') !== '0';
   function getCtx() {
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state === 'suspended') ctx.resume();
@@ -1975,19 +1997,51 @@
     wave1.style.opacity = muted ? '0.2' : '1';
     wave2.style.opacity = muted ? '0.2' : '1';
   }
+  const studioNameVideo = document.getElementById('studioNameVideo');
+  const showreelVideo = document.querySelector('.showreel-video');
+  const showreelMute  = document.getElementById('showreelMute');
+  const showreelPlay  = document.getElementById('showreelPlay');
+  const showreelWrap  = document.querySelector('.showreel-video-wrap');
+  const syncShowreelMuteIcon = () => {
+    if (!showreelMute || !showreelVideo) return;
+    const iMuted = showreelMute.querySelector('.icon-muted');
+    const iSound = showreelMute.querySelector('.icon-sound');
+    iMuted.style.display = showreelVideo.muted ? '' : 'none';
+    iSound.style.display = showreelVideo.muted ? 'none' : '';
+  };
+  const applyVideoMutePreference = () => {
+    const introEl = document.getElementById('introVideo');
+    if (introEl) introEl.muted = muted;
+    if (studioNameVideo) studioNameVideo.muted = muted;
+    if (showreelVideo) {
+      showreelVideo.muted = muted;
+      syncShowreelMuteIcon();
+    }
+  };
+  const ensureVideoPlayback = (video, wrap = null) => {
+    if (!video) return;
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise
+        .then(() => { if (wrap) wrap.classList.remove('needs-play'); })
+        .catch(() => { if (wrap) wrap.classList.add('needs-play'); });
+    }
+  };
   syncMuteUI();
+  applyVideoMutePreference();
   muteBtn.addEventListener('click', () => {
     muted = !muted;
     sessionStorage.setItem('judinMute', muted ? '1' : '0');
+    applyVideoMutePreference();
     syncMuteUI();
+    ensureVideoPlayback(studioNameVideo);
+    ensureVideoPlayback(showreelVideo, showreelWrap);
   });
 
   /* Showreel mute toggle */
-  const studioNameVideo = document.getElementById('studioNameVideo');
   if (studioNameVideo) {
     const tryPlayStudio = () => {
-      const playPromise = studioNameVideo.play();
-      if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+      ensureVideoPlayback(studioNameVideo);
     };
     tryPlayStudio();
     studioNameVideo.addEventListener('loadedmetadata', tryPlayStudio);
@@ -1998,20 +2052,9 @@
     document.addEventListener('touchstart', tryPlayStudio, { once: true });
   }
 
-  const showreelVideo = document.querySelector('.showreel-video');
-  const showreelMute  = document.getElementById('showreelMute');
-  const showreelPlay  = document.getElementById('showreelPlay');
-  const showreelWrap  = document.querySelector('.showreel-video-wrap');
   if (showreelMute && showreelVideo) {
-    const iMuted = showreelMute.querySelector('.icon-muted');
-    const iSound = showreelMute.querySelector('.icon-sound');
     const tryPlayShowreel = () => {
-      const playPromise = showreelVideo.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise
-          .then(() => { if (showreelWrap) showreelWrap.classList.remove('needs-play'); })
-          .catch(() => { if (showreelWrap) showreelWrap.classList.add('needs-play'); });
-      }
+      ensureVideoPlayback(showreelVideo, showreelWrap);
     };
 
     tryPlayShowreel();
@@ -2027,15 +2070,24 @@
     if (showreelPlay) {
       showreelPlay.addEventListener('click', () => {
         showreelVideo.controls = true;
-        showreelVideo.muted = false;
+        muted = false;
+        sessionStorage.setItem('judinMute', '0');
+        applyVideoMutePreference();
+        syncMuteUI();
         tryPlayShowreel();
       });
     }
 
     showreelMute.addEventListener('click', () => {
       showreelVideo.muted = !showreelVideo.muted;
-      iMuted.style.display = showreelVideo.muted ? '' : 'none';
-      iSound.style.display  = showreelVideo.muted ? 'none' : '';
+      muted = showreelVideo.muted;
+      sessionStorage.setItem('judinMute', muted ? '1' : '0');
+      if (studioNameVideo) studioNameVideo.muted = muted;
+      const introEl = document.getElementById('introVideo');
+      if (introEl) introEl.muted = muted;
+      syncMuteUI();
+      syncShowreelMuteIcon();
+      tryPlayShowreel();
     });
   }
 
