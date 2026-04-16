@@ -3,6 +3,8 @@ const fs = require("fs");
 const http = require("http");
 const path = require("path");
 
+loadDotEnv(path.join(__dirname, ".env"));
+
 const port = process.env.PORT || 4335;
 const baseDir = __dirname;
 const basePath = path.resolve(baseDir);
@@ -10,8 +12,8 @@ const sessionCookieName = "judin_admin_session";
 const sessionLifetimeMs = 1000 * 60 * 60 * 8;
 const adminLogin = process.env.ADMINPANEL_LOGIN || "";
 const adminPassword = process.env.ADMINPANEL_PASSWORD || "";
-const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY || "";
-const turnstileSecretKey = process.env.TURNSTILE_SECRET_KEY || "";
+const recaptchaSiteKey = process.env.RECAPTCHA_SITE_KEY || "";
+const recaptchaSecretKey = process.env.RECAPTCHA_SECRET_KEY || "";
 const sessionSecret =
   process.env.ADMIN_SESSION_SECRET ||
   `${adminLogin}:${adminPassword}:${process.env.RAILWAY_STATIC_URL || "judin-admin"}`;
@@ -28,6 +30,32 @@ const mimeTypes = {
   ".webp": "image/webp",
   ".mp4": "video/mp4",
 };
+
+function loadDotEnv(filePath) {
+  if (!fs.existsSync(filePath)) return;
+
+  const lines = fs.readFileSync(filePath, "utf8").split(/\r?\n/);
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) continue;
+
+    const separatorIndex = line.indexOf("=");
+    if (separatorIndex === -1) continue;
+
+    const key = line.slice(0, separatorIndex).trim();
+    if (!key || process.env[key] !== undefined) continue;
+
+    let value = line.slice(separatorIndex + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    process.env[key] = value;
+  }
+}
 
 function parseCookies(headerValue) {
   if (!headerValue) return {};
@@ -157,17 +185,55 @@ function readBody(req) {
 }
 
 function serveFile(res, filePath, options = {}) {
-  fs.readFile(filePath, (error, content) => {
-    if (error) {
-      sendText(res, error.code === "ENOENT" ? 404 : 500, error.code === "ENOENT" ? "Not found" : "Server error");
+  fs.stat(filePath, (statError, stats) => {
+    if (statError) {
+      sendText(res, statError.code === "ENOENT" ? 404 : 500, statError.code === "ENOENT" ? "Not found" : "Server error");
+      return;
+    }
+
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = mimeTypes[ext] || "application/octet-stream";
+    const baseHeaders = {
+      "Content-Type": contentType,
+      "Cache-Control": options.noStore ? "no-store" : "public, max-age=300",
+      "Accept-Ranges": "bytes",
+    };
+
+    const rangeHeader = options.req && options.req.headers ? options.req.headers.range : "";
+    if (rangeHeader && /^bytes=/.test(rangeHeader)) {
+      const [rawStart, rawEnd] = rangeHeader.replace(/bytes=/, "").split("-");
+      const start = rawStart ? Number(rawStart) : 0;
+      const end = rawEnd ? Number(rawEnd) : stats.size - 1;
+
+      if (
+        Number.isNaN(start) ||
+        Number.isNaN(end) ||
+        start < 0 ||
+        end < start ||
+        start >= stats.size
+      ) {
+        writeHead(res, 416, {
+          ...baseHeaders,
+          "Content-Range": `bytes */${stats.size}`,
+        });
+        res.end();
+        return;
+      }
+
+      writeHead(res, 206, {
+        ...baseHeaders,
+        "Content-Range": `bytes ${start}-${end}/${stats.size}`,
+        "Content-Length": end - start + 1,
+      });
+      fs.createReadStream(filePath, { start, end }).pipe(res);
       return;
     }
 
     writeHead(res, 200, {
-      "Content-Type": mimeTypes[path.extname(filePath).toLowerCase()] || "application/octet-stream",
-      "Cache-Control": options.noStore ? "no-store" : "public, max-age=300",
+      ...baseHeaders,
+      "Content-Length": stats.size,
     });
-    res.end(content);
+    fs.createReadStream(filePath).pipe(res);
   });
 }
 
@@ -180,28 +246,33 @@ function getRemoteIp(req) {
   );
 }
 
-async function verifyTurnstileToken(token, req) {
-  if (!turnstileSecretKey) {
-    return {success: false, "error-codes": ["missing-input-secret"]};
+async function verifyRecaptchaToken(token, req) {
+  if (!recaptchaSecretKey) {
+    return { success: false, "error-codes": ["missing-input-secret"] };
   }
 
-  const formData = new FormData();
-  formData.append("secret", turnstileSecretKey);
-  formData.append("response", token);
+  const body = new URLSearchParams();
+  body.set("secret", recaptchaSecretKey);
+  body.set("response", token);
 
   const remoteIp = getRemoteIp(req);
-  if (remoteIp) formData.append("remoteip", remoteIp);
+  if (remoteIp) body.set("remoteip", remoteIp);
 
   try {
-    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: body.toString(),
     });
     return await response.json();
   } catch {
-    return {success: false, "error-codes": ["internal-error"]};
+    return { success: false, "error-codes": ["internal-error"] };
   }
 }
+
+
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -219,22 +290,22 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (requestPath === "/api/turnstile/config") {
+    if (requestPath === "/api/recaptcha/config") {
       sendJson(res, 200, {
-        enabled: Boolean(turnstileSiteKey && turnstileSecretKey),
-        siteKey: turnstileSiteKey || null,
+        enabled: Boolean(recaptchaSiteKey && recaptchaSecretKey),
+        siteKey: recaptchaSiteKey || null,
       });
       return;
     }
 
-    if (requestPath === "/api/turnstile/verify") {
+    if (requestPath === "/api/recaptcha/verify") {
       if (req.method !== "POST") {
-        sendJson(res, 405, {success: false, error: "method-not-allowed"});
+        sendJson(res, 405, { success: false, error: "method-not-allowed" });
         return;
       }
 
-      if (!turnstileSiteKey || !turnstileSecretKey) {
-        sendJson(res, 503, {success: false, error: "turnstile-not-configured"});
+      if (!recaptchaSiteKey || !recaptchaSecretKey) {
+        sendJson(res, 503, { success: false, error: "recaptcha-not-configured" });
         return;
       }
 
@@ -244,16 +315,16 @@ const server = http.createServer(async (req, res) => {
         const body = JSON.parse(rawBody || "{}");
         token = typeof body.token === "string" ? body.token : "";
       } catch {
-        sendJson(res, 400, {success: false, error: "invalid-json"});
+        sendJson(res, 400, { success: false, error: "invalid-json" });
         return;
       }
 
       if (!token) {
-        sendJson(res, 400, {success: false, error: "missing-token"});
+        sendJson(res, 400, { success: false, error: "missing-token" });
         return;
       }
 
-      const result = await verifyTurnstileToken(token, req);
+      const result = await verifyRecaptchaToken(token, req);
       sendJson(res, result.success ? 200 : 400, result);
       return;
     }
@@ -295,7 +366,7 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      serveFile(res, path.join(baseDir, "admin", "login.html"), {noStore: true});
+      serveFile(res, path.join(baseDir, "admin", "login.html"), {noStore: true, req});
       return;
     }
 
@@ -322,7 +393,7 @@ const server = http.createServer(async (req, res) => {
     if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
       filePath = path.join(filePath, "index.html");
     }
-    serveFile(res, filePath, {noStore: requestPath.startsWith("/admin/")});
+    serveFile(res, filePath, {noStore: requestPath.startsWith("/admin/"), req});
   } catch (error) {
     console.error("Request error:", error);
     if (!res.headersSent) {
@@ -336,3 +407,4 @@ const server = http.createServer(async (req, res) => {
 server.listen(port, "0.0.0.0", () => {
   console.log(`Judin preview running on port ${port}`);
 });
+
