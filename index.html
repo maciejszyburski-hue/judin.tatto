@@ -12,7 +12,7 @@
   <meta property="og:locale" content="pl_PL" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://judin.tattoo/" />
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=judinTurnstileOnLoad" async defer></script>
+  <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=judinRecaptchaOnLoad" async defer></script>
 
   <script type="application/ld+json">
   {
@@ -633,6 +633,42 @@
       object-fit: cover;
       background: #000;
     }
+    .mobile-video-launch {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 170px;
+      min-height: 56px;
+      padding: 0.95rem 1.3rem;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(7,6,10,0.78);
+      color: var(--cream);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      z-index: 3;
+      backdrop-filter: blur(12px);
+      font-family: var(--ui-font);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: none;
+    }
+    .mobile-video-launch svg { flex-shrink: 0; }
+    .studio-video-frame.mobile-manual .mobile-video-launch,
+    .showreel-video-wrap.mobile-manual .mobile-video-launch {
+      display: inline-flex;
+    }
+    .studio-video-frame.is-playing .mobile-video-launch,
+    .showreel-video-wrap.is-playing .mobile-video-launch {
+      display: none;
+    }
+    .studio-video-frame.mobile-manual .studio-video,
+    .showreel-video-wrap.mobile-manual .showreel-video {
+      cursor: auto;
+    }
     .studio-caption {
       position: absolute;
       left: 1.2rem;
@@ -812,6 +848,9 @@
     .showreel-video-wrap.needs-play .showreel-play {
       display: flex;
     }
+    .showreel-video-wrap.mobile-manual.needs-play .showreel-play {
+      display: none;
+    }
     .showreel-mute {
       position: absolute; bottom: 1.5rem; right: 1.5rem;
       width: 44px; height: 44px;
@@ -821,6 +860,7 @@
       transition: border-color 0.3s, background 0.3s;
     }
     .showreel-mute:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.1); }
+    .showreel-mute.is-hidden { display: none !important; }
 
     /* ═══════════════════════════════════ PROCESS ═══ */
     #process {
@@ -1040,13 +1080,14 @@
       background: rgba(248,113,113,0.08);
       color: #f4d0d0;
     }
-    .turnstile-wrap {
+    .recaptcha-wrap {
       margin-top: 1rem;
       display: flex;
       justify-content: flex-start;
+      min-height: 78px;
     }
-    .turnstile-wrap.is-hidden { display: none; }
-    .turnstile-note {
+    .recaptcha-wrap.is-hidden { display: none; }
+    .recaptcha-note {
       margin-top: 0.75rem;
       font-size: 0.82rem;
       color: rgba(237,232,223,0.5);
@@ -1326,6 +1367,14 @@
       .process-grid { grid-template-columns: 1fr; }
       .pricing-inner { margin-top: 2.5rem; }
       .studio-video { min-height: 480px; object-fit: cover; }
+      .mobile-video-launch {
+        min-width: 0;
+        width: calc(100% - 2rem);
+        max-width: 280px;
+        bottom: 1.1rem;
+        top: auto;
+        transform: translateX(-50%);
+      }
       .studio-caption {
         left: 0.9rem;
         right: 0.9rem;
@@ -1360,7 +1409,7 @@
       .cur-dot, .cur-ring { display: none; }
       .intro-video.mobile-hidden { display: none !important; }
       .intro-fallback.mobile-visible { display: block; }
-      .showreel-play { cursor: auto; }
+      .showreel-play, .mobile-video-launch { cursor: auto; }
     }
   </style>
 </head>
@@ -1508,7 +1557,7 @@
     <div class="about-bg-word">Studio</div>
     <div class="about-grid">
       <div class="studio-media reveal-left">
-        <div class="studio-video-frame">
+        <div class="studio-video-frame" id="studioVideoFrame">
           <video
             class="studio-video"
             id="studioNameVideo"
@@ -1517,12 +1566,18 @@
             loop
             playsinline
             webkit-playsinline
-            preload="auto"
+            preload="none"
             poster="./images/studio-name-poster.jpg"
             disablepictureinpicture
           >
-            <source src="./studio-name.mp4" type="video/mp4" />
+            <source src="./studio-name-mobile.mp4" type="video/mp4" />
           </video>
+          <button class="mobile-video-launch" id="studioVideoPlay" type="button" aria-label="Odtworz film studia">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <span>Odtworz film</span>
+          </button>
           <div class="studio-caption">
             <span class="studio-caption-dot"></span>
             <span>Judin Tattoo Atelier — Gdańsk</span>
@@ -1611,17 +1666,23 @@
     <div class="showreel-inner reveal">
       <div class="section-label">Showreel</div>
       <h2 class="section-heading">W akcji</h2>
-      <div class="showreel-video-wrap">
+      <div class="showreel-video-wrap" id="showreelWrap">
         <video
           class="showreel-video"
           autoplay muted loop playsinline webkit-playsinline
-          preload="auto"
+          preload="none"
           poster="./images/showreel-poster.jpg"
           disablepictureinpicture
         >
-          <source src="./judin-reel-mobile.mp4" type="video/mp4" />
+          <source src="./judin-reel-mobile-safe.mp4" type="video/mp4" />
         </video>
         <div class="showreel-overlay">
+          <button class="mobile-video-launch" id="showreelLaunch" type="button" aria-label="Odtworz showreel na telefonie">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <span>Odtworz showreel</span>
+          </button>
           <button class="showreel-play" id="showreelPlay" aria-label="Odtwórz showreel">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7z"/>
@@ -1806,10 +1867,10 @@
               </div>
             </div>
             <p class="form-note">Po zapisaniu termin trafi do panelu admina jako oczekujący. Administrator może potem edytować dane klienta, potwierdzić wizytę albo zablokować inne godziny.</p>
-            <div class="turnstile-wrap is-hidden" id="turnstileWrap">
-              <div id="turnstileWidget"></div>
+            <div class="recaptcha-wrap is-hidden" id="recaptchaWrap">
+              <div id="recaptchaWidget"></div>
             </div>
-            <p class="turnstile-note" id="turnstileNote">Zabezpieczenie antyspamowe ładuje się...</p>
+            <p class="recaptcha-note" id="recaptchaNote">Zabezpieczenie antyspamowe ładuje się...</p>
             <button class="btn-submit" id="bookingSubmitBtn" type="button">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               <span>Wyślij zapytanie</span>
@@ -2005,10 +2066,14 @@
     wave2.style.opacity = muted ? '0.2' : '1';
   }
   const studioNameVideo = document.getElementById('studioNameVideo');
+  const studioVideoFrame = document.getElementById('studioVideoFrame');
+  const studioVideoPlay = document.getElementById('studioVideoPlay');
   const showreelVideo = document.querySelector('.showreel-video');
   const showreelMute  = document.getElementById('showreelMute');
   const showreelPlay  = document.getElementById('showreelPlay');
-  const showreelWrap  = document.querySelector('.showreel-video-wrap');
+  const showreelLaunch = document.getElementById('showreelLaunch');
+  const showreelWrap  = document.getElementById('showreelWrap');
+  const mobileVideoMode = window.matchMedia('(hover: none), (pointer: coarse), (max-width: 767px)').matches;
   const syncShowreelMuteIcon = () => {
     if (!showreelMute || !showreelVideo) return;
     const iMuted = showreelMute.querySelector('.icon-muted');
@@ -2025,14 +2090,60 @@
       syncShowreelMuteIcon();
     }
   };
-  const ensureVideoPlayback = (video, wrap = null) => {
+  const markVideoPlaying = (wrap, isPlaying) => {
+    if (!wrap) return;
+    wrap.classList.toggle('is-playing', isPlaying);
+    wrap.classList.toggle('needs-play', !isPlaying);
+  };
+  const tryPlay = (video, wrap) => {
     if (!video) return;
-    const playPromise = video.play();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise
-        .then(() => { if (wrap) wrap.classList.remove('needs-play'); })
-        .catch(() => { if (wrap) wrap.classList.add('needs-play'); });
+    const p = video.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => markVideoPlaying(wrap, true))
+       .catch(() => markVideoPlaying(wrap, false));
     }
+  };
+  const enterManualMobileVideoMode = (video, wrap, launchButton) => {
+    if (!video || !wrap || !launchButton) return;
+    wrap.classList.add('mobile-manual', 'needs-play');
+    wrap.classList.remove('is-playing');
+    video.pause();
+    video.autoplay = false;
+    video.removeAttribute('autoplay');
+    video.preload = 'none';
+    const startManualPlayback = () => {
+      /* NIGDY nie wywołuj video.load() przed play() — powoduje AbortError
+         który sprawia że play() natychmiast się odpina i przycisk wraca.
+         Ustaw preload='auto' i wywołaj play() bezpośrednio w handlerze gestu
+         (iOS/Android wymaga synchronicznego play() w user gesture). */
+      video.preload = 'auto';
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise
+          .then(() => markVideoPlaying(wrap, true))
+          .catch(() => {
+            if (!video.muted) {
+              video.muted = true;
+              video.play()
+                .then(() => markVideoPlaying(wrap, true))
+                .catch(() => markVideoPlaying(wrap, false));
+            } else {
+              markVideoPlaying(wrap, false);
+            }
+          });
+      } else {
+        markVideoPlaying(wrap, true);
+      }
+    };
+    launchButton.addEventListener('click', startManualPlayback);
+    video.addEventListener('playing', () => markVideoPlaying(wrap, true));
+    video.addEventListener('pause', () => {
+      if (!video.ended) wrap.classList.remove('is-playing');
+    });
+  };
+  const isInViewport = (el) => {
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < window.innerHeight;
   };
   syncMuteUI();
   applyVideoMutePreference();
@@ -2041,61 +2152,49 @@
     sessionStorage.setItem('judinMute', muted ? '1' : '0');
     applyVideoMutePreference();
     syncMuteUI();
-    if (studioNameVideo && isInViewport && isInViewport(studioNameVideo)) tryPlay(studioNameVideo);
-    if (showreelVideo   && isInViewport && isInViewport(showreelVideo))   tryPlay(showreelVideo, showreelWrap);
-  });
-
-  /* ── Video playback: IntersectionObserver for reliable mobile autoplay ── */
-  const tryPlay = (video, wrap) => {
-    if (!video) return;
-    const p = video.play();
-    if (p && typeof p.then === 'function') {
-      p.then(() => { if (wrap) wrap.classList.remove('needs-play'); })
-       .catch(() => { if (wrap) wrap.classList.add('needs-play'); });
+    if (!mobileVideoMode) {
+      if (studioNameVideo && isInViewport(studioNameVideo)) tryPlay(studioNameVideo, studioVideoFrame);
+      if (showreelVideo && isInViewport(showreelVideo)) tryPlay(showreelVideo, showreelWrap);
     }
-  };
-
-  // Play/pause as each video enters or leaves the viewport
-  const videoViewObs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        tryPlay(e.target, e.target === showreelVideo ? showreelWrap : null);
-      } else {
-        e.target.pause();
-      }
-    });
-  }, { threshold: 0.25 });
-
-  if (studioNameVideo) videoViewObs.observe(studioNameVideo);
-  if (showreelVideo)   videoViewObs.observe(showreelVideo);
-
-  // Resume after tab switch
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible') return;
-    if (studioNameVideo && isInViewport(studioNameVideo)) tryPlay(studioNameVideo);
-    if (showreelVideo   && isInViewport(showreelVideo))   tryPlay(showreelVideo, showreelWrap);
   });
 
-  function isInViewport(el) {
-    const r = el.getBoundingClientRect();
-    return r.bottom > 0 && r.top < window.innerHeight;
-  }
+  if (mobileVideoMode) {
+    enterManualMobileVideoMode(studioNameVideo, studioVideoFrame, studioVideoPlay);
+    enterManualMobileVideoMode(showreelVideo, showreelWrap, showreelLaunch);
+    if (showreelMute) showreelMute.classList.add('is-hidden');
+    if (showreelPlay) {
+      showreelPlay.addEventListener('click', () => {
+        if (showreelLaunch) showreelLaunch.click();
+      });
+    }
+  } else {
+    const videoViewObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          tryPlay(e.target, e.target === showreelVideo ? showreelWrap : studioVideoFrame);
+        } else {
+          e.target.pause();
+          markVideoPlaying(e.target === showreelVideo ? showreelWrap : studioVideoFrame, false);
+        }
+      });
+    }, { threshold: 0.25 });
 
-  // Showreel: play button just starts playback (stays muted — let user unmute separately)
-  if (showreelPlay) {
-    showreelPlay.addEventListener('click', () => {
-      tryPlay(showreelVideo, showreelWrap);
+    if (studioNameVideo) videoViewObs.observe(studioNameVideo);
+    if (showreelVideo) videoViewObs.observe(showreelVideo);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      if (studioNameVideo && isInViewport(studioNameVideo)) tryPlay(studioNameVideo, studioVideoFrame);
+      if (showreelVideo && isInViewport(showreelVideo)) tryPlay(showreelVideo, showreelWrap);
     });
+
+    if (showreelPlay) {
+      showreelPlay.addEventListener('click', () => {
+        tryPlay(showreelVideo, showreelWrap);
+      });
+    }
   }
 
-  // Showreel: remove overlay once playing
-  if (showreelVideo) {
-    showreelVideo.addEventListener('playing', () => {
-      if (showreelWrap) showreelWrap.classList.remove('needs-play');
-    });
-  }
-
-  // Showreel mute toggle
   if (showreelMute && showreelVideo) {
     showreelMute.addEventListener('click', () => {
       showreelVideo.muted = !showreelVideo.muted;
@@ -2369,9 +2468,8 @@
   const clientServiceInput = document.getElementById('clientService');
   const clientInstagramInput = document.getElementById('clientInstagram');
   const clientNotesInput = document.getElementById('clientNotes');
-  const turnstileWrap = document.getElementById('turnstileWrap');
-  const turnstileWidget = document.getElementById('turnstileWidget');
-  const turnstileNote = document.getElementById('turnstileNote');
+  const recaptchaWrap = document.getElementById('recaptchaWrap');
+  const recaptchaNote = document.getElementById('recaptchaNote');
   const adminEditToggle = document.getElementById('adminEditToggle');
   const adminResetBtn = document.getElementById('adminResetBtn');
   const adminKpis = document.getElementById('adminKpis');
@@ -2476,10 +2574,10 @@
   let selectedTime = null;
   let calYear = getTodayDate().getFullYear();
   let calMonth = getTodayDate().getMonth();
-  let turnstileConfig = null;
-  let turnstileToken = '';
-  let turnstileWidgetId = null;
-  let turnstileRendered = false;
+  let recaptchaConfig = null;
+  let recaptchaToken = '';
+  let recaptchaWidgetId = null;
+  let recaptchaRendered = false;
   let bookingSubmitBusy = false;
 
   function saveState() {
@@ -2557,62 +2655,62 @@
     bookingSubmitBtn.style.opacity = bookingSubmitBusy ? '0.7' : '1';
   }
 
-  function updateTurnstileNote(message, isError) {
-    turnstileNote.textContent = message;
-    turnstileNote.style.color = isError ? '#f4d0d0' : 'rgba(237,232,223,0.5)';
+  function updateRecaptchaNote(message, isError) {
+    recaptchaNote.textContent = message;
+    recaptchaNote.style.color = isError ? '#f4d0d0' : 'rgba(237,232,223,0.5)';
   }
 
-  function resetTurnstileToken() {
-    turnstileToken = '';
+  function resetRecaptchaToken() {
+    recaptchaToken = '';
   }
 
-  function resetTurnstileWidget() {
-    resetTurnstileToken();
-    if (window.turnstile && turnstileWidgetId !== null) {
-      window.turnstile.reset(turnstileWidgetId);
+  function resetRecaptchaWidget() {
+    resetRecaptchaToken();
+    if (window.grecaptcha && recaptchaWidgetId !== null) {
+      window.grecaptcha.reset(recaptchaWidgetId);
     }
   }
 
-  function renderTurnstileWidget() {
-    if (!turnstileConfig || !turnstileConfig.enabled || !turnstileConfig.siteKey) {
-      turnstileWrap.classList.add('is-hidden');
-      updateTurnstileNote('Formularz chwilowo niedostępny. Zabezpieczenie Turnstile nie jest jeszcze skonfigurowane.', true);
+  function renderRecaptchaWidget() {
+    if (!recaptchaConfig || !recaptchaConfig.enabled || !recaptchaConfig.siteKey) {
+      recaptchaWrap.classList.add('is-hidden');
+      updateRecaptchaNote('Formularz chwilowo niedostepny. reCAPTCHA nie zostala jeszcze skonfigurowana.', true);
       return;
     }
-    if (!window.turnstile || turnstileRendered) return;
-    turnstileWrap.classList.remove('is-hidden');
-    turnstileWidgetId = window.turnstile.render('#turnstileWidget', {
-      sitekey: turnstileConfig.siteKey,
+    if (!window.grecaptcha || recaptchaRendered) return;
+    recaptchaWrap.classList.remove('is-hidden');
+    recaptchaWidgetId = window.grecaptcha.render('recaptchaWidget', {
+      sitekey: recaptchaConfig.siteKey,
       theme: 'dark',
       callback: function(token) {
-        turnstileToken = token;
-        updateTurnstileNote('Weryfikacja zakończona. Możesz wysłać zapytanie.', false);
+        recaptchaToken = token;
+        updateRecaptchaNote('Weryfikacja zakonczona. Mozesz wyslac zapytanie.', false);
       },
       'expired-callback': function() {
-        resetTurnstileToken();
-        updateTurnstileNote('Weryfikacja wygasła. Potwierdź ponownie, że nie jesteś botem.', true);
+        resetRecaptchaToken();
+        updateRecaptchaNote('Weryfikacja wygasla. Zaznacz pole ponownie.', true);
       },
       'error-callback': function() {
-        resetTurnstileToken();
-        updateTurnstileNote('Nie udało się załadować zabezpieczenia. Odśwież stronę i spróbuj ponownie.', true);
+        resetRecaptchaToken();
+        updateRecaptchaNote('Nie udalo sie zaladowac reCAPTCHA. Odswiez strone i sproboj ponownie.', true);
       }
     });
-    turnstileRendered = true;
-    updateTurnstileNote('Potwierdź, że nie jesteś botem, aby wysłać zapytanie.', false);
+    recaptchaRendered = true;
+    updateRecaptchaNote('Potwierdz, ze nie jestes botem, aby wyslac zapytanie.', false);
   }
 
-  async function loadTurnstileConfig() {
+  async function loadRecaptchaConfig() {
     try {
-      const response = await fetch('/api/turnstile/config', {cache: 'no-store'});
-      turnstileConfig = await response.json();
+      const response = await fetch('/api/recaptcha/config', {cache: 'no-store'});
+      recaptchaConfig = await response.json();
     } catch (error) {
-      turnstileConfig = { enabled: false, siteKey: null };
+      recaptchaConfig = { enabled: false, siteKey: null };
     }
-    renderTurnstileWidget();
+    renderRecaptchaWidget();
   }
 
-  window.judinTurnstileOnLoad = function() {
-    renderTurnstileWidget();
+  window.judinRecaptchaOnLoad = function() {
+    renderRecaptchaWidget();
   };
 
   function renderCalendar() {
@@ -2858,15 +2956,15 @@
     const phone = clientPhoneInput.value.trim();
     const email = clientEmailInput.value.trim();
     if (!selectedDate || !selectedTime || !name || !phone || !email) {
-      setBookingFeedback('Uzupełnij imię, telefon, email oraz wybierz termin i godzinę.', true);
+      setBookingFeedback('Uzupelnij imie, telefon, email oraz wybierz termin i godzine.', true);
       return;
     }
-    if (!turnstileConfig || !turnstileConfig.enabled) {
-      setBookingFeedback('Formularz jest chwilowo niedostępny. Zabezpieczenie antyspamowe nie zostało skonfigurowane.', true);
+    if (!recaptchaConfig || !recaptchaConfig.enabled) {
+      setBookingFeedback('Formularz jest chwilowo niedostepny. reCAPTCHA nie zostala skonfigurowana.', true);
       return;
     }
-    if (!turnstileToken) {
-      setBookingFeedback('Najpierw potwierdź w zabezpieczeniu, że nie jesteś botem.', true);
+    if (!recaptchaToken) {
+      setBookingFeedback('Najpierw potwierdz w reCAPTCHA, ze nie jestes botem.', true);
       return;
     }
 
@@ -2875,18 +2973,18 @@
     clearBookingFeedback();
 
     try {
-      const response = await fetch('/api/turnstile/verify', {
+      const response = await fetch('/api/recaptcha/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: turnstileToken })
+        body: JSON.stringify({ token: recaptchaToken })
       });
       const verification = await response.json();
       if (!response.ok || !verification.success) {
         throw new Error('verification-failed');
       }
     } catch (error) {
-      setBookingFeedback('Weryfikacja zabezpieczenia nie powiodła się. Spróbuj ponownie.', true);
-      resetTurnstileWidget();
+      setBookingFeedback('Weryfikacja reCAPTCHA nie powiodla sie. Sprobuj ponownie.', true);
+      resetRecaptchaWidget();
       bookingSubmitBusy = false;
       updateBookingSubmitState();
       return;
@@ -2906,15 +3004,14 @@
     });
 
     saveState();
-    setBookingFeedback('Zapytanie zostało wysłane. Dziękujemy.', false);
+    setBookingFeedback('Zapytanie zostalo wyslane. Dziekujemy.', false);
     clearBookingForm();
     resetBookingUi();
-    resetTurnstileWidget();
+    resetRecaptchaWidget();
     refreshBookingAndAdmin();
     bookingSubmitBusy = false;
     updateBookingSubmitState();
   });
-
   availabilityDateInput.addEventListener('change', () => {
     availabilityFocusDate = availabilityDateInput.value;
     renderAvailabilityPanel();
@@ -2948,8 +3045,13 @@
 
   renderCalendar();
   refreshBookingAndAdmin();
-  loadTurnstileConfig();
 
   </script>
 </body>
 </html>
+
+
+
+
+
+
