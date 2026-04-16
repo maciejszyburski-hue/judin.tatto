@@ -386,8 +386,8 @@
     .hero-bg::before {
       content: '';
       position: absolute; inset: 0;
-      background: url('./images/hero-wing-desktop.png') calc(50% + 180px) 2.2rem / min(68vw, 1120px) auto no-repeat;
-      opacity: 0.94;
+      background: url('./images/hero-wing-desktop.png') center center / cover no-repeat;
+      opacity: 0.96;
       filter: saturate(1.02) contrast(1.03) drop-shadow(0 18px 80px rgba(216,161,104,0.24));
     }
     .hero-bg::after {
@@ -1298,10 +1298,8 @@
       .intro-enter { bottom: 2rem; font-size: 0.62rem; letter-spacing: 0.24em; gap: 0.75rem; }
       .intro-enter::before, .intro-enter::after { width: 22px; }
       .hero-bg::before {
-        background-image: url('./images/hero-wing-mobile.png');
-        background-size: min(100vw, 620px) auto;
-        background-position: center 3.25rem;
-        opacity: 0.94;
+        background: url('./images/hero-wing-mobile.png') center center / cover no-repeat;
+        opacity: 0.96;
       }
       .hero-bg::after {
         background:
