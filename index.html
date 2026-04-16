@@ -386,28 +386,29 @@
     .hero-bg::before {
       content: '';
       position: absolute; inset: 0;
-      background: url('./images/hero-wing-desktop.png') center 1.2rem / min(82vw, 1320px) auto no-repeat;
-      opacity: 0.92;
+      background: url('./images/hero-wing-desktop.png') calc(50% + 180px) 2.2rem / min(68vw, 1120px) auto no-repeat;
+      opacity: 0.94;
       filter: saturate(1.02) contrast(1.03) drop-shadow(0 18px 80px rgba(216,161,104,0.24));
     }
     .hero-bg::after {
       content: '';
       position: absolute; inset: 0;
       background:
-        radial-gradient(circle at 50% 25%, rgba(246,212,161,0.18), transparent 16%),
-        radial-gradient(circle at 50% 57%, rgba(216,161,104,0.2), transparent 22%),
-        linear-gradient(180deg, rgba(7,6,10,0.04) 0%, rgba(7,6,10,0.36) 68%, rgba(7,6,10,0.84) 100%);
+        linear-gradient(90deg, rgba(7,6,10,0.88) 0%, rgba(7,6,10,0.72) 18%, rgba(7,6,10,0.34) 42%, rgba(7,6,10,0.18) 62%, rgba(7,6,10,0.34) 100%),
+        radial-gradient(circle at 58% 28%, rgba(246,212,161,0.16), transparent 16%),
+        radial-gradient(circle at 58% 61%, rgba(216,161,104,0.18), transparent 22%),
+        linear-gradient(180deg, rgba(7,6,10,0.06) 0%, rgba(7,6,10,0.28) 68%, rgba(7,6,10,0.84) 100%);
     }
 
     /* Patchwork tattoo pattern — full page bg (SVG set via JS) */
     body::after {
       content: '';
       position: fixed; inset: 0;
-      background-image: var(--flash-bg), url('./images/hero-wing-desktop.png');
-      background-size: 220px 220px, cover;
-      background-position: center top, center top;
-      background-repeat: repeat, no-repeat;
-      opacity: 0.08;
+      background-image: var(--flash-bg);
+      background-size: 220px 220px;
+      background-position: center top;
+      background-repeat: repeat;
+      opacity: 0.04;
       pointer-events: none;
       z-index: 0;
     }
