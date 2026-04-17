@@ -922,6 +922,52 @@
     }
     .process-desc { font-size: 0.85rem; color: rgba(237,232,223,0.5); line-height: 1.8; }
 
+    /* REVIEWS */
+    #reviews { padding: 8rem 5rem; position: relative; overflow: hidden; }
+    .reviews-bg {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-family: var(--display-font); font-size: 14vw; letter-spacing: 0.08em;
+      color: var(--cream); opacity: 0.02; pointer-events: none; white-space: nowrap; user-select: none;
+    }
+    .reviews-head { max-width: 820px; margin: 0 auto; text-align: center; }
+    .reviews-intro {
+      margin: 1rem auto 0; max-width: 700px;
+      font-size: 0.92rem; line-height: 1.9; color: rgba(237,232,223,0.58);
+    }
+    .reviews-meta {
+      margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.75rem;
+      padding: 0.7rem 1rem; border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+      font-family: var(--ui-font); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+    }
+    .reviews-meta strong { color: var(--cream); font-weight: 500; letter-spacing: 0.08em; }
+    .reviews-grid {
+      max-width: 1200px; margin: 4rem auto 0;
+      display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.5rem;
+    }
+    .review-card {
+      position: relative; min-height: 100%;
+      padding: 2rem; border: 1px solid var(--border); background: rgba(20,18,24,0.62);
+    }
+    .review-card::before {
+      content: "“"; position: absolute; top: 0.6rem; left: 1.2rem;
+      font-family: var(--display-font); font-size: 4rem; line-height: 1;
+      color: rgba(255,255,255,0.08); pointer-events: none;
+    }
+    .review-text {
+      position: relative; z-index: 1;
+      font-size: 0.95rem; line-height: 1.95; color: rgba(237,232,223,0.82);
+      margin-bottom: 1.5rem;
+    }
+    .review-footer {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1rem;
+    }
+    .review-author {
+      font-family: var(--ui-font); font-size: 0.88rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--cream);
+    }
+    .review-date { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em; }
+
     /* ═══════════════════════════════════ PRICING ═══ */
     #pricing { padding: 9rem 5rem; position: relative; overflow: hidden; }
     .pricing-bg {
@@ -1344,7 +1390,7 @@
       .about-grid { grid-template-columns: 1fr; gap: 3.5rem; }
       .strip-header, .strip-footer { padding: 0 2rem; }
       .strip-scroll { padding: 0 2rem; }
-      #pricing, #booking, #contact, #about, #process, #admin-panel { padding: 5rem 2rem; }
+      #pricing, #booking, #contact, #about, #process, #reviews, #admin-panel { padding: 5rem 2rem; }
       .booking-inner { grid-template-columns: 1fr; gap: 3rem; }
       .form-grid, .availability-grid { grid-template-columns: 1fr; }
       .admin-toolbar { align-items: stretch; }
@@ -1352,6 +1398,7 @@
       .admin-toolbar-actions .admin-btn { flex: 1; }
       .contact-cards { grid-template-columns: 1fr 1fr; }
       .contact-card:nth-child(2) { border-right: none; }
+      .reviews-grid { grid-template-columns: 1fr; }
       nav { padding: 1.2rem 1.5rem; }
       nav.scrolled { padding: 0.9rem 1.5rem; }
       .nav-links { display: none; }
@@ -1392,6 +1439,7 @@
       .strip-item:nth-child(even),
       .strip-item:first-child { width: min(78vw, 320px); }
       .process-grid { grid-template-columns: 1fr; }
+      .reviews-meta { width: 100%; justify-content: center; flex-wrap: wrap; }
       .pricing-inner { margin-top: 2.5rem; }
       .studio-video { min-height: 480px; object-fit: cover; }
       .mobile-video-launch {
@@ -1606,6 +1654,9 @@
             <span>Odtworz film</span>
           </button>
           <div class="video-playing-bar" id="studioPlayingBar">
+            <button class="video-ctrl-btn" id="studioPauseBtn" type="button" aria-label="Pauza">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
             <button class="video-ctrl-btn" id="studioVolBtn" type="button" aria-label="Wycisz/Odcisz">
               <svg class="icn-off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
               <svg class="icn-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
@@ -1734,6 +1785,9 @@
           </button>
         </div>
         <div class="video-playing-bar" id="showreelPlayingBar">
+          <button class="video-ctrl-btn" id="showreelPauseBtn" type="button" aria-label="Pauza">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
           <button class="video-ctrl-btn" id="showreelVolBtn" type="button" aria-label="Wycisz/Odcisz">
             <svg class="icn-off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
             <svg class="icn-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
@@ -1778,6 +1832,63 @@
         <h3 class="process-title">Opieka po</h3>
         <p class="process-desc">Dostajesz pełną instrukcję pielęgnacji. Jestem dostępny przez miesiąc po sesji — możesz pytać o cokolwiek.</p>
       </div>
+    </div>
+  </section>
+
+  <section id="reviews">
+    <div class="reviews-bg">OPINIE</div>
+    <div class="reviews-head reveal">
+      <div class="section-label">Opinie moich klientów</div>
+      <h2 class="section-heading">Co mówią po<br><em>swojej wizycie</em></h2>
+      <p class="reviews-intro">To kilka prawdziwych opinii z Google od osób, które były już na konsultacji albo sesji. Najczęściej wracają w nich trzy rzeczy: precyzja, atmosfera i podejście do człowieka.</p>
+      <div class="reviews-meta">
+        <strong>5.0 / opinie Google</strong>
+        <span>Wybrane recenzje klientów</span>
+      </div>
+    </div>
+    <div class="reviews-grid">
+      <article class="review-card reveal delay-1">
+        <p class="review-text">Pełna profeska, jak i podejście do klienta tak i do tattoo. Dzisiaj zrobił mi czwarty tatuaż, z każdego jestem w pełni zadowolony.</p>
+        <div class="review-footer">
+          <span class="review-author">Wojtek Gozdowiak</span>
+          <span class="review-date">2 miesiące temu</span>
+        </div>
+      </article>
+      <article class="review-card reveal delay-2">
+        <p class="review-text">Projekt szybko wykonany praktycznie bez poprawek i w pełni akceptowalny. Wykonanie przeszło moje oczekiwania. Świetna robota, pełen profesjonalizm.</p>
+        <div class="review-footer">
+          <span class="review-author">Marcin Polus</span>
+          <span class="review-date">miesiąc temu</span>
+        </div>
+      </article>
+      <article class="review-card reveal delay-3">
+        <p class="review-text">Judin zna się na swoim fachu, potrafi doradzić i trafnie dopasować projekt, super atmosfera, na pewno będę wracać do tego studia.</p>
+        <div class="review-footer">
+          <span class="review-author">Dawid Kottlewski</span>
+          <span class="review-date">2 miesiące temu</span>
+        </div>
+      </article>
+      <article class="review-card reveal delay-4">
+        <p class="review-text">Wykonanie na najwyższym poziomie, linie są precyzyjne, detale dopracowane, a całość wygląda lepiej niż się spodziewałam.</p>
+        <div class="review-footer">
+          <span class="review-author">Agata Łodej</span>
+          <span class="review-date">4 miesiące temu</span>
+        </div>
+      </article>
+      <article class="review-card reveal delay-1">
+        <p class="review-text">To nie jest tylko rysunek — to tatuaż z historią. Jan z ogromną delikatnością, precyzją i profesjonalizmem spełnił to marzenie.</p>
+        <div class="review-footer">
+          <span class="review-author">Eliza Kharchenko</span>
+          <span class="review-date">4 miesiące temu</span>
+        </div>
+      </article>
+      <article class="review-card reveal delay-2">
+        <p class="review-text">Wykonanie jest bardzo dokładne, linie równe, a każdy detal dopracowany. W studiu panowała luźna, swobodna atmosfera, zero napinki.</p>
+        <div class="review-footer">
+          <span class="review-author">Sebastian</span>
+          <span class="review-date">4 miesiące temu</span>
+        </div>
+      </article>
     </div>
   </section>
 
@@ -2161,26 +2272,37 @@
     video.removeAttribute('autoplay');
     video.preload = 'none';
     const startManualPlayback = () => {
-      /* NIGDY nie wywołuj video.load() przed play() — powoduje AbortError
-         który sprawia że play() natychmiast się odpina i przycisk wraca.
+      /* NIGDY nie wywołuj video.load() przed play() — powoduje AbortError.
          Ustaw preload='auto' i wywołaj play() bezpośrednio w handlerze gestu
          (iOS/Android wymaga synchronicznego play() w user gesture). */
+      const btnSpan = launchButton.querySelector('span');
+      const origText = btnSpan ? btnSpan.textContent : '';
+      if (btnSpan) btnSpan.textContent = 'Ładowanie…';
+      launchButton.style.opacity = '0.55';
+      launchButton.style.pointerEvents = 'none';
+      const resetBtn = () => {
+        if (btnSpan) btnSpan.textContent = origText;
+        launchButton.style.opacity = '';
+        launchButton.style.pointerEvents = '';
+      };
       video.preload = 'auto';
       const playPromise = video.play();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise
-          .then(() => markVideoPlaying(wrap, true))
+          .then(() => { resetBtn(); markVideoPlaying(wrap, true); })
           .catch(() => {
             if (!video.muted) {
               video.muted = true;
               video.play()
-                .then(() => markVideoPlaying(wrap, true))
-                .catch(() => markVideoPlaying(wrap, false));
+                .then(() => { resetBtn(); markVideoPlaying(wrap, true); })
+                .catch(() => { resetBtn(); markVideoPlaying(wrap, false); });
             } else {
+              resetBtn();
               markVideoPlaying(wrap, false);
             }
           });
       } else {
+        resetBtn();
         markVideoPlaying(wrap, true);
       }
     };
@@ -2216,6 +2338,27 @@
         if (showreelLaunch) showreelLaunch.click();
       });
     }
+    /* Preload filmów gdy scroll zbliża się do sekcji (300px przed viewport).
+       Dzięki temu gdy użytkownik naciśnie play, film jest już częściowo
+       pobrany i odpala się bez opóźnienia. */
+    const mobilePreloadObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && e.target.preload === 'none') {
+          e.target.preload = 'auto';
+          mobilePreloadObs.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '300px 0px', threshold: 0 });
+    if (studioNameVideo) mobilePreloadObs.observe(studioNameVideo);
+    if (showreelVideo) mobilePreloadObs.observe(showreelVideo);
+    /* Obsługa błędu video — jeśli plik niedostępny, resetuj przycisk */
+    [studioNameVideo, showreelVideo].forEach(v => {
+      if (!v) return;
+      v.addEventListener('error', () => {
+        const wrap = v === showreelVideo ? showreelWrap : studioVideoFrame;
+        markVideoPlaying(wrap, false);
+      });
+    });
   } else {
     const videoViewObs = new IntersectionObserver((entries) => {
       entries.forEach(e => {
@@ -2257,8 +2400,8 @@
     });
   }
 
-  /* ── mini playing controls: mute + fullscreen ── */
-  const setupVideoPlayingBar = (video, volBtn, fsBtn) => {
+  /* ── mini playing controls: pause + mute + fullscreen ── */
+  const setupVideoPlayingBar = (video, pauseBtn, volBtn, fsBtn) => {
     if (!video || !volBtn || !fsBtn) return;
     const syncVol = () => {
       const off = volBtn.querySelector('.icn-off');
@@ -2266,6 +2409,12 @@
       if (off) off.style.display = video.muted ? '' : 'none';
       if (on)  on.style.display  = video.muted ? 'none' : '';
     };
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.pause();
+      });
+    }
     volBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       video.muted = !video.muted;
@@ -2277,8 +2426,8 @@
     });
     fsBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (video.requestFullscreen)           video.requestFullscreen();
-      else if (video.webkitEnterFullscreen)  video.webkitEnterFullscreen();
+      if (video.requestFullscreen)            video.requestFullscreen();
+      else if (video.webkitEnterFullscreen)   video.webkitEnterFullscreen();
       else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
     });
     video.addEventListener('volumechange', syncVol);
@@ -2286,11 +2435,13 @@
   };
   setupVideoPlayingBar(
     studioNameVideo,
+    document.getElementById('studioPauseBtn'),
     document.getElementById('studioVolBtn'),
     document.getElementById('studioFsBtn')
   );
   setupVideoPlayingBar(
     showreelVideo,
+    document.getElementById('showreelPauseBtn'),
     document.getElementById('showreelVolBtn'),
     document.getElementById('showreelFsBtn')
   );
