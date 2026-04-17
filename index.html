@@ -2892,15 +2892,34 @@
   /* reCAPTCHA v3 — niewidoczne, token generowany przy submit */
   function executeRecaptchaV3(action) {
     return new Promise((resolve, reject) => {
-      if (!window.grecaptcha || !recaptchaConfig || !recaptchaConfig.siteKey) {
-        reject(new Error('recaptcha-not-ready'));
-        return;
-      }
-      window.grecaptcha.ready(() => {
-        window.grecaptcha.execute(recaptchaConfig.siteKey, { action })
-          .then(resolve)
-          .catch(() => reject(new Error('recaptcha-execute-failed')));
-      });
+      let attempts = 0;
+      const MAX = 80; /* 8 sekund (80 × 100ms) */
+      const tryExec = () => {
+        /* Czekaj aż config załaduje się z API */
+        if (!recaptchaConfig) {
+          if (attempts++ < MAX) { setTimeout(tryExec, 100); }
+          else { reject(new Error('recaptcha-timeout')); }
+          return;
+        }
+        /* Sprawdź czy reCAPTCHA jest skonfigurowana */
+        if (!recaptchaConfig.enabled || !recaptchaConfig.siteKey) {
+          reject(new Error('recaptcha-not-configured'));
+          return;
+        }
+        /* Czekaj aż skrypt Google załaduje się do DOM */
+        if (!window.grecaptcha) {
+          if (attempts++ < MAX) { setTimeout(tryExec, 100); }
+          else { reject(new Error('recaptcha-timeout')); }
+          return;
+        }
+        /* Skrypt gotowy — wykonaj token */
+        window.grecaptcha.ready(() => {
+          window.grecaptcha.execute(recaptchaConfig.siteKey, { action })
+            .then(resolve)
+            .catch(() => reject(new Error('recaptcha-execute-failed')));
+        });
+      };
+      tryExec();
     });
   }
 
@@ -2912,12 +2931,15 @@
       recaptchaConfig = { enabled: false, siteKey: null };
     }
     if (recaptchaConfig.enabled && recaptchaConfig.siteKey) {
-      /* Załaduj skrypt v3 dynamicznie z kluczem w URL */
       const s = document.createElement('script');
       s.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaConfig.siteKey)}`;
-      s.onerror = () => updateRecaptchaNote('Nie udalo sie zaladowac zabezpieczenia. Odswiez strone.', true);
+      s.onload  = () => updateRecaptchaNote('Formularz chroniony przez reCAPTCHA.', false);
+      s.onerror = () => {
+        recaptchaConfig = { enabled: false, siteKey: null };
+        updateRecaptchaNote('Nie udalo sie zaladowac zabezpieczenia. Odswiez strone.', true);
+      };
       document.head.appendChild(s);
-      updateRecaptchaNote('Formularz chroniony przez reCAPTCHA.', false);
+      /* Nota pozostaje "ładuje się" dopóki skrypt się nie załaduje */
     } else {
       updateRecaptchaNote('Formularz chwilowo niedostepny — brak konfiguracji zabezpieczenia.', true);
     }
