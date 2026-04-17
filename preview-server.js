@@ -14,6 +14,10 @@ const adminLogin = process.env.ADMINPANEL_LOGIN || "";
 const adminPassword = process.env.ADMINPANEL_PASSWORD || "";
 const recaptchaSiteKey = process.env.RECAPTCHA_SITE_KEY || "";
 const recaptchaSecretKey = process.env.RECAPTCHA_SECRET_KEY || "";
+const resendApiKey = process.env.RESEND_API_KEY || "";
+const mailFrom = process.env.MAIL_FROM || "";
+const mailTo = process.env.MAIL_TO || "";
+const mailReplyTo = process.env.MAIL_REPLY_TO || "";
 const sessionSecret =
   process.env.ADMIN_SESSION_SECRET ||
   `${adminLogin}:${adminPassword}:${process.env.RAILWAY_STATIC_URL || "judin-admin"}`;
@@ -99,6 +103,10 @@ function isValidSession(req) {
 
 function credentialsConfigured() {
   return Boolean(adminLogin && adminPassword);
+}
+
+function emailDeliveryConfigured() {
+  return Boolean(resendApiKey && mailFrom && mailTo);
 }
 
 function safeEquals(left, right) {
@@ -246,6 +254,157 @@ function getRemoteIp(req) {
   );
 }
 
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatDateForEmail(dateValue) {
+  if (!dateValue) return "Nie podano";
+  const date = new Date(`${dateValue}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return dateValue;
+  return date.toLocaleDateString("pl-PL", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function normalizeEmailRecipients(value) {
+  return String(value || "")
+    .split(",")
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function bookingSummaryLines(booking) {
+  return [
+    ["Imię", booking.name],
+    ["Telefon", booking.phone],
+    ["Email", booking.email],
+    ["Usługa", booking.service || "Konsultacja"],
+    ["Instagram", booking.instagram || "Nie podano"],
+    ["Data", formatDateForEmail(booking.date)],
+    ["Godzina", booking.time],
+    ["Opis", booking.notes || "Brak dodatkowych informacji"],
+  ];
+}
+
+function createOwnerEmailHtml(booking) {
+  const rows = bookingSummaryLines(booking)
+    .map(([label, value]) => `<tr><td style="padding:8px 12px 8px 0;color:#7f7b73;font-size:13px;vertical-align:top;">${escapeHtml(label)}</td><td style="padding:8px 0;color:#111;font-size:15px;vertical-align:top;">${escapeHtml(value)}</td></tr>`)
+    .join("");
+
+  return `<!doctype html>
+<html lang="pl">
+  <body style="margin:0;padding:24px;background:#f5f1ea;font-family:Arial,sans-serif;color:#111;">
+    <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;padding:32px;">
+      <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#7f7b73;">Nowe zgłoszenie</p>
+      <h1 style="margin:0 0 24px;font-size:28px;line-height:1.1;">Rezerwacja z formularza Judin Tattoo</h1>
+      <table style="width:100%;border-collapse:collapse;">${rows}</table>
+    </div>
+  </body>
+</html>`;
+}
+
+function createOwnerEmailText(booking) {
+  return `Nowe zgłoszenie z formularza Judin Tattoo
+
+Imię: ${booking.name}
+Telefon: ${booking.phone}
+Email: ${booking.email}
+Usługa: ${booking.service || "Konsultacja"}
+Instagram: ${booking.instagram || "Nie podano"}
+Data: ${formatDateForEmail(booking.date)}
+Godzina: ${booking.time}
+Opis: ${booking.notes || "Brak dodatkowych informacji"}`;
+}
+
+function createClientEmailHtml(booking) {
+  return `<!doctype html>
+<html lang="pl">
+  <body style="margin:0;padding:24px;background:#0e0d10;font-family:Arial,sans-serif;color:#f5f1ea;">
+    <div style="max-width:640px;margin:0 auto;background:#17161a;border-radius:12px;padding:32px;">
+      <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#b8b2a6;">Judin Tattoo</p>
+      <h1 style="margin:0 0 18px;font-size:28px;line-height:1.15;color:#ffffff;">Dziękujemy za wysłanie zgłoszenia</h1>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.75;color:#e9e2d6;">Cześć ${escapeHtml(booking.name)}, otrzymaliśmy Twoją prośbę o rezerwację terminu.</p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.75;color:#e9e2d6;">Wybrany termin: <strong>${escapeHtml(formatDateForEmail(booking.date))}</strong> o <strong>${escapeHtml(booking.time)}</strong>.</p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.75;color:#e9e2d6;">Skontaktujemy się z Tobą, aby potwierdzić wizytę i omówić szczegóły projektu.</p>
+      <p style="margin:0;font-size:14px;line-height:1.7;color:#b8b2a6;">Jeśli chcesz coś doprecyzować, odpisz na tę wiadomość albo napisz bezpośrednio do studia.</p>
+    </div>
+  </body>
+</html>`;
+}
+
+function createClientEmailText(booking) {
+  return `Dziękujemy za wysłanie zgłoszenia.
+
+Cześć ${booking.name},
+otrzymaliśmy Twoją prośbę o rezerwację terminu:
+${formatDateForEmail(booking.date)} o ${booking.time}
+
+Skontaktujemy się z Tobą, aby potwierdzić wizytę i omówić szczegóły projektu.
+
+Judin Tattoo`;
+}
+
+async function sendResendEmail(payload) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json",
+      "User-Agent": "judin-tattoo/1.0",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  let result = null;
+  try {
+    result = await response.json();
+  } catch {
+    result = null;
+  }
+
+  if (!response.ok) {
+    const message = result && typeof result.message === "string" ? result.message : "resend-request-failed";
+    throw new Error(message);
+  }
+
+  return result;
+}
+
+async function sendBookingEmails(booking) {
+  const recipients = normalizeEmailRecipients(mailTo);
+  const replyTo = mailReplyTo || undefined;
+
+  await sendResendEmail({
+    from: mailFrom,
+    to: recipients,
+    subject: `Nowe zgłoszenie: ${booking.name} - ${formatDateForEmail(booking.date)} ${booking.time}`,
+    html: createOwnerEmailHtml(booking),
+    text: createOwnerEmailText(booking),
+    replyTo,
+  });
+
+  await sendResendEmail({
+    from: mailFrom,
+    to: [booking.email],
+    subject: "Potwierdzenie otrzymania zgłoszenia - Judin Tattoo",
+    html: createClientEmailHtml(booking),
+    text: createClientEmailText(booking),
+    replyTo,
+  });
+}
+
 async function verifyRecaptchaToken(token, req) {
   if (!recaptchaSecretKey) {
     return { success: false, "error-codes": ["missing-input-secret"] };
@@ -326,6 +485,76 @@ const server = http.createServer(async (req, res) => {
 
       const result = await verifyRecaptchaToken(token, req);
       sendJson(res, result.success ? 200 : 400, result);
+      return;
+    }
+
+    if (requestPath === "/api/bookings") {
+      if (req.method !== "POST") {
+        sendJson(res, 405, { success: false, error: "method-not-allowed" });
+        return;
+      }
+
+      if (!recaptchaSiteKey || !recaptchaSecretKey) {
+        sendJson(res, 503, { success: false, error: "recaptcha-not-configured" });
+        return;
+      }
+
+      if (!emailDeliveryConfigured()) {
+        sendJson(res, 503, { success: false, error: "email-not-configured" });
+        return;
+      }
+
+      let body = null;
+      try {
+        const rawBody = await readBody(req);
+        body = JSON.parse(rawBody || "{}");
+      } catch {
+        sendJson(res, 400, { success: false, error: "invalid-json" });
+        return;
+      }
+
+      const token = typeof body.token === "string" ? body.token.trim() : "";
+      const booking = {
+        name: typeof body.name === "string" ? body.name.trim() : "",
+        phone: typeof body.phone === "string" ? body.phone.trim() : "",
+        email: typeof body.email === "string" ? body.email.trim() : "",
+        service: typeof body.service === "string" ? body.service.trim() : "",
+        instagram: typeof body.instagram === "string" ? body.instagram.trim() : "",
+        notes: typeof body.notes === "string" ? body.notes.trim() : "",
+        date: typeof body.date === "string" ? body.date.trim() : "",
+        time: typeof body.time === "string" ? body.time.trim() : "",
+      };
+
+      if (!token) {
+        sendJson(res, 400, { success: false, error: "missing-token" });
+        return;
+      }
+
+      if (!booking.name || !booking.phone || !booking.email || !booking.date || !booking.time) {
+        sendJson(res, 400, { success: false, error: "missing-fields" });
+        return;
+      }
+
+      if (!isValidEmail(booking.email)) {
+        sendJson(res, 400, { success: false, error: "invalid-email" });
+        return;
+      }
+
+      const recaptchaResult = await verifyRecaptchaToken(token, req);
+      if (!recaptchaResult.success) {
+        sendJson(res, 400, { success: false, error: "verification-failed", details: recaptchaResult["error-codes"] || [] });
+        return;
+      }
+
+      try {
+        await sendBookingEmails(booking);
+      } catch (error) {
+        console.error("Email delivery failed:", error);
+        sendJson(res, 502, { success: false, error: "email-delivery-failed" });
+        return;
+      }
+
+      sendJson(res, 200, { success: true });
       return;
     }
 

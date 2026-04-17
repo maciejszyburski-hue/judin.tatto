@@ -3060,17 +3060,36 @@
     clearBookingFeedback();
 
     try {
-      const response = await fetch('/api/recaptcha/verify', {
+      const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: recaptchaToken })
+        body: JSON.stringify({
+          token: recaptchaToken,
+          name,
+          phone,
+          email,
+          service: clientServiceInput.value,
+          instagram: clientInstagramInput.value.trim(),
+          notes: clientNotesInput.value.trim(),
+          date: selectedDate,
+          time: selectedTime
+        })
       });
-      const verification = await response.json();
-      if (!response.ok || !verification.success) {
-        throw new Error('verification-failed');
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error((result && result.error) || 'booking-failed');
       }
     } catch (error) {
-      setBookingFeedback('Weryfikacja reCAPTCHA nie powiodla sie. Sprobuj ponownie.', true);
+      const code = error && error.message ? error.message : 'booking-failed';
+      if (code === 'verification-failed') {
+        setBookingFeedback('Weryfikacja reCAPTCHA nie powiodla sie. Sprobuj ponownie.', true);
+      } else if (code === 'email-not-configured') {
+        setBookingFeedback('Powiadomienia email nie sa jeszcze skonfigurowane na serwerze.', true);
+      } else if (code === 'invalid-email') {
+        setBookingFeedback('Podaj poprawny adres email.', true);
+      } else {
+        setBookingFeedback('Nie udalo sie wyslac formularza. Sprobuj ponownie za chwile.', true);
+      }
       resetRecaptchaWidget();
       bookingSubmitBusy = false;
       updateBookingSubmitState();
@@ -3091,7 +3110,7 @@
     });
 
     saveState();
-    setBookingFeedback('Zapytanie zostalo wyslane. Dziekujemy.', false);
+    setBookingFeedback('Zapytanie zostalo wyslane. Sprawdz skrzynke email po potwierdzenie.', false);
     clearBookingForm();
     resetBookingUi();
     resetRecaptchaWidget();
