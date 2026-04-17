@@ -861,6 +861,33 @@
     }
     .showreel-mute:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.1); }
     .showreel-mute.is-hidden { display: none !important; }
+    /* ── mini controls (mute + fullscreen) widoczne gdy video gra na mobile ── */
+    .video-playing-bar {
+      position: absolute;
+      bottom: 0.8rem;
+      right: 0.8rem;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      z-index: 5;
+      pointer-events: all;
+    }
+    @media (hover: none), (pointer: coarse) {
+      .studio-video-frame.is-playing .video-playing-bar,
+      .showreel-video-wrap.is-playing .video-playing-bar { display: flex; }
+    }
+    .video-ctrl-btn {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(7,6,10,0.72);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.65);
+      backdrop-filter: blur(12px);
+      border-radius: 2px;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .video-ctrl-btn:active { color: var(--cream); border-color: rgba(255,255,255,0.34); }
 
     /* ═══════════════════════════════════ PROCESS ═══ */
     #process {
@@ -1578,6 +1605,15 @@
             </svg>
             <span>Odtworz film</span>
           </button>
+          <div class="video-playing-bar" id="studioPlayingBar">
+            <button class="video-ctrl-btn" id="studioVolBtn" type="button" aria-label="Wycisz/Odcisz">
+              <svg class="icn-off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              <svg class="icn-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+            </button>
+            <button class="video-ctrl-btn" id="studioFsBtn" type="button" aria-label="Pełny ekran">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+            </button>
+          </div>
           <div class="studio-caption">
             <span class="studio-caption-dot"></span>
             <span>Judin Tattoo Atelier — Gdańsk</span>
@@ -1691,6 +1727,15 @@
           <button class="showreel-mute" id="showreelMute" aria-label="Wycisz/Odcisz">
             <svg class="icon-muted" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
             <svg class="icon-sound" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+          </button>
+        </div>
+        <div class="video-playing-bar" id="showreelPlayingBar">
+          <button class="video-ctrl-btn" id="showreelVolBtn" type="button" aria-label="Wycisz/Odcisz">
+            <svg class="icn-off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            <svg class="icn-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+          </button>
+          <button class="video-ctrl-btn" id="showreelFsBtn" type="button" aria-label="Pełny ekran">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
           </button>
         </div>
       </div>
@@ -2207,6 +2252,44 @@
       syncShowreelMuteIcon();
     });
   }
+
+  /* ── mini playing controls: mute + fullscreen ── */
+  const setupVideoPlayingBar = (video, volBtn, fsBtn) => {
+    if (!video || !volBtn || !fsBtn) return;
+    const syncVol = () => {
+      const off = volBtn.querySelector('.icn-off');
+      const on  = volBtn.querySelector('.icn-on');
+      if (off) off.style.display = video.muted ? '' : 'none';
+      if (on)  on.style.display  = video.muted ? 'none' : '';
+    };
+    volBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      video.muted = !video.muted;
+      muted = video.muted;
+      sessionStorage.setItem('judinMute', muted ? '1' : '0');
+      applyVideoMutePreference();
+      syncMuteUI();
+      syncVol();
+    });
+    fsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (video.requestFullscreen)           video.requestFullscreen();
+      else if (video.webkitEnterFullscreen)  video.webkitEnterFullscreen();
+      else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+    });
+    video.addEventListener('volumechange', syncVol);
+    syncVol();
+  };
+  setupVideoPlayingBar(
+    studioNameVideo,
+    document.getElementById('studioVolBtn'),
+    document.getElementById('studioFsBtn')
+  );
+  setupVideoPlayingBar(
+    showreelVideo,
+    document.getElementById('showreelVolBtn'),
+    document.getElementById('showreelFsBtn')
+  );
 
   /* Click sounds delegated */
   document.addEventListener('click', e => {
