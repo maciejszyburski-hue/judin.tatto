@@ -405,31 +405,29 @@ async function sendBookingEmails(booking) {
   });
 }
 
-async function verifyRecaptchaToken(token, req) {
-  if (!recaptchaSecretKey) {
-    return { success: false, "error-codes": ["missing-input-secret"] };
-  }
+/* ── Rate limiting: max 3 zgłoszeń / godzinę per IP ── */
+const ipSubmissions = new Map();
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const RATE_MAX = 3;
 
-  const body = new URLSearchParams();
-  body.set("secret", recaptchaSecretKey);
-  body.set("response", token);
-
-  const remoteIp = getRemoteIp(req);
-  if (remoteIp) body.set("remoteip", remoteIp);
-
-  try {
-    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: body.toString(),
-    });
-    return await response.json();
-  } catch {
-    return { success: false, "error-codes": ["internal-error"] };
-  }
+function isRateLimited(ip) {
+  const now = Date.now();
+  const times = (ipSubmissions.get(ip) || []).filter(t => now - t < RATE_WINDOW_MS);
+  if (times.length >= RATE_MAX) return true;
+  times.push(now);
+  ipSubmissions.set(ip, times);
+  return false;
 }
+
+/* Czyść starą mapę co godzinę żeby nie zajmowała pamięci */
+setInterval(() => {
+  const cutoff = Date.now() - RATE_WINDOW_MS;
+  for (const [ip, times] of ipSubmissions) {
+    const filtered = times.filter(t => t > cutoff);
+    if (filtered.length === 0) ipSubmissions.delete(ip);
+    else ipSubmissions.set(ip, filtered);
+  }
+}, RATE_WINDOW_MS);
 
 
 
@@ -494,11 +492,6 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      if (!recaptchaSiteKey || !recaptchaSecretKey) {
-        sendJson(res, 503, { success: false, error: "recaptcha-not-configured" });
-        return;
-      }
-
       if (!emailDeliveryConfigured()) {
         sendJson(res, 503, { success: false, error: "email-not-configured" });
         return;
@@ -513,22 +506,37 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      const token = typeof body.token === "string" ? body.token.trim() : "";
-      const booking = {
-        name: typeof body.name === "string" ? body.name.trim() : "",
-        phone: typeof body.phone === "string" ? body.phone.trim() : "",
-        email: typeof body.email === "string" ? body.email.trim() : "",
-        service: typeof body.service === "string" ? body.service.trim() : "",
-        instagram: typeof body.instagram === "string" ? body.instagram.trim() : "",
-        notes: typeof body.notes === "string" ? body.notes.trim() : "",
-        date: typeof body.date === "string" ? body.date.trim() : "",
-        time: typeof body.time === "string" ? body.time.trim() : "",
-      };
-
-      if (!token) {
-        sendJson(res, 400, { success: false, error: "missing-token" });
+      /* ── Honeypot: boty wypełniają ukryte pole ── */
+      const honeypot = typeof body.hp === "string" ? body.hp : "";
+      if (honeypot) {
+        sendJson(res, 200, { success: true }); /* cicho udajemy sukces */
         return;
       }
+
+      /* ── Timing: zbyt szybkie wysłanie = bot ── */
+      const elapsed = typeof body.elapsed === "number" ? body.elapsed : 9999;
+      if (elapsed < 3000) {
+        sendJson(res, 200, { success: true }); /* j.w. */
+        return;
+      }
+
+      /* ── Rate limiting: max 3 / godzinę per IP ── */
+      const senderIp = getRemoteIp(req);
+      if (isRateLimited(senderIp)) {
+        sendJson(res, 429, { success: false, error: "rate-limited" });
+        return;
+      }
+
+      const booking = {
+        name:      typeof body.name      === "string" ? body.name.trim()      : "",
+        phone:     typeof body.phone     === "string" ? body.phone.trim()     : "",
+        email:     typeof body.email     === "string" ? body.email.trim()     : "",
+        service:   typeof body.service   === "string" ? body.service.trim()   : "",
+        instagram: typeof body.instagram === "string" ? body.instagram.trim() : "",
+        notes:     typeof body.notes     === "string" ? body.notes.trim()     : "",
+        date:      typeof body.date      === "string" ? body.date.trim()      : "",
+        time:      typeof body.time      === "string" ? body.time.trim()      : "",
+      };
 
       if (!booking.name || !booking.phone || !booking.email || !booking.date || !booking.time) {
         sendJson(res, 400, { success: false, error: "missing-fields" });
@@ -537,12 +545,6 @@ const server = http.createServer(async (req, res) => {
 
       if (!isValidEmail(booking.email)) {
         sendJson(res, 400, { success: false, error: "invalid-email" });
-        return;
-      }
-
-      const recaptchaResult = await verifyRecaptchaToken(token, req);
-      if (!recaptchaResult.success) {
-        sendJson(res, 400, { success: false, error: "verification-failed", details: recaptchaResult["error-codes"] || [] });
         return;
       }
 

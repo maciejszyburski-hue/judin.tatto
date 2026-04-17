@@ -1151,19 +1151,6 @@
       background: rgba(248,113,113,0.08);
       color: #f4d0d0;
     }
-    .recaptcha-wrap {
-      margin-top: 1rem;
-      display: flex;
-      justify-content: flex-start;
-      min-height: 78px;
-    }
-    .recaptcha-wrap.is-hidden { display: none; }
-    .recaptcha-note {
-      margin-top: 0.75rem;
-      font-size: 0.82rem;
-      color: rgba(237,232,223,0.5);
-      line-height: 1.6;
-    }
     .btn-submit {
       width: 100%; background: linear-gradient(135deg, #f2c98f, #c88a4d); color: var(--ink);
       font-family: var(--ui-font); font-size: 0.95rem; letter-spacing: 0.2em;
@@ -2025,7 +2012,10 @@
               </div>
             </div>
             <p class="form-note">Po zapisaniu termin trafi do panelu admina jako oczekujący. Administrator może potem edytować dane klienta, potwierdzić wizytę albo zablokować inne godziny.</p>
-            <p class="recaptcha-note" id="recaptchaNote">Zabezpieczenie antyspamowe ładuje się...</p>
+            <!-- honeypot — niewidoczne dla ludzi, boty to wypelniaja -->
+            <div style="display:none !important" aria-hidden="true">
+              <input type="text" name="website" id="hpField" tabindex="-1" autocomplete="off" value="" />
+            </div>
             <button class="btn-submit" id="bookingSubmitBtn" type="button">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               <span>Wyślij zapytanie</span>
@@ -2701,7 +2691,7 @@
   const clientServiceInput = document.getElementById('clientService');
   const clientInstagramInput = document.getElementById('clientInstagram');
   const clientNotesInput = document.getElementById('clientNotes');
-  const recaptchaNote = document.getElementById('recaptchaNote');
+  const hpField = document.getElementById('hpField');
   const adminEditToggle = document.getElementById('adminEditToggle');
   const adminResetBtn = document.getElementById('adminResetBtn');
   const adminKpis = document.getElementById('adminKpis');
@@ -2806,7 +2796,7 @@
   let selectedTime = null;
   let calYear = getTodayDate().getFullYear();
   let calMonth = getTodayDate().getMonth();
-  let recaptchaConfig = null;
+  const formOpenTime = Date.now();
   let bookingSubmitBusy = false;
 
   function saveState() {
@@ -2884,66 +2874,6 @@
     bookingSubmitBtn.style.opacity = bookingSubmitBusy ? '0.7' : '1';
   }
 
-  function updateRecaptchaNote(message, isError) {
-    recaptchaNote.textContent = message;
-    recaptchaNote.style.color = isError ? '#f4d0d0' : 'rgba(237,232,223,0.5)';
-  }
-
-  /* reCAPTCHA v3 — niewidoczne, token generowany przy submit */
-  function executeRecaptchaV3(action) {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const MAX = 80; /* 8 sekund (80 × 100ms) */
-      const tryExec = () => {
-        /* Czekaj aż config załaduje się z API */
-        if (!recaptchaConfig) {
-          if (attempts++ < MAX) { setTimeout(tryExec, 100); }
-          else { reject(new Error('recaptcha-timeout')); }
-          return;
-        }
-        /* Sprawdź czy reCAPTCHA jest skonfigurowana */
-        if (!recaptchaConfig.enabled || !recaptchaConfig.siteKey) {
-          reject(new Error('recaptcha-not-configured'));
-          return;
-        }
-        /* Czekaj aż skrypt Google załaduje się do DOM */
-        if (!window.grecaptcha) {
-          if (attempts++ < MAX) { setTimeout(tryExec, 100); }
-          else { reject(new Error('recaptcha-timeout')); }
-          return;
-        }
-        /* Skrypt gotowy — wykonaj token */
-        window.grecaptcha.ready(() => {
-          window.grecaptcha.execute(recaptchaConfig.siteKey, { action })
-            .then(resolve)
-            .catch(() => reject(new Error('recaptcha-execute-failed')));
-        });
-      };
-      tryExec();
-    });
-  }
-
-  async function loadRecaptchaConfig() {
-    try {
-      const response = await fetch('/api/recaptcha/config', {cache: 'no-store'});
-      recaptchaConfig = await response.json();
-    } catch {
-      recaptchaConfig = { enabled: false, siteKey: null };
-    }
-    if (recaptchaConfig.enabled && recaptchaConfig.siteKey) {
-      const s = document.createElement('script');
-      s.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaConfig.siteKey)}`;
-      s.onload  = () => updateRecaptchaNote('Formularz chroniony przez reCAPTCHA.', false);
-      s.onerror = () => {
-        recaptchaConfig = { enabled: false, siteKey: null };
-        updateRecaptchaNote('Nie udalo sie zaladowac zabezpieczenia. Odswiez strone.', true);
-      };
-      document.head.appendChild(s);
-      /* Nota pozostaje "ładuje się" dopóki skrypt się nie załaduje */
-    } else {
-      updateRecaptchaNote('Formularz chwilowo niedostepny — brak konfiguracji zabezpieczenia.', true);
-    }
-  }
 
   function renderCalendar() {
     const calGrid = document.getElementById('calGrid');
@@ -3195,22 +3125,13 @@
     updateBookingSubmitState();
     clearBookingFeedback();
 
-    let recaptchaToken = '';
-    try {
-      recaptchaToken = await executeRecaptchaV3('booking');
-    } catch {
-      setBookingFeedback('Nie udalo sie zweryfikowac zabezpieczenia. Odswiez strone i sproboj ponownie.', true);
-      bookingSubmitBusy = false;
-      updateBookingSubmitState();
-      return;
-    }
-
     try {
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          token: recaptchaToken,
+          hp: hpField ? hpField.value : '',
+          elapsed: Date.now() - formOpenTime,
           name,
           phone,
           email,
