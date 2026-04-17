@@ -3144,19 +3144,24 @@
       });
       const result = await response.json();
       if (!response.ok || !result.success) {
-        throw new Error((result && result.error) || 'booking-failed');
+        const code = (result && result.error) || 'booking-failed';
+        if (code === 'rate-limited') {
+          setBookingFeedback('Wysłano już 3 zapytania w ciągu ostatniej godziny. Spróbuj później.', true);
+        } else if (code === 'email-not-configured' || code === 'email-delivery-failed') {
+          setBookingFeedback('Błąd konfiguracji serwera. Skontaktuj się bezpośrednio: +48 780 792 172', true);
+        } else if (code === 'invalid-email') {
+          setBookingFeedback('Podaj poprawny adres email.', true);
+        } else if (code === 'missing-fields') {
+          setBookingFeedback('Uzupełnij wszystkie wymagane pola formularza.', true);
+        } else {
+          setBookingFeedback('Nie udało się wysłać formularza. Spróbuj ponownie za chwilę.', true);
+        }
+        bookingSubmitBusy = false;
+        updateBookingSubmitState();
+        return;
       }
-    } catch (error) {
-      const code = error && error.message ? error.message : 'booking-failed';
-      if (code === 'verification-failed') {
-        setBookingFeedback('Weryfikacja reCAPTCHA nie powiodla sie. Sprobuj ponownie.', true);
-      } else if (code === 'email-not-configured') {
-        setBookingFeedback('Powiadomienia email nie sa jeszcze skonfigurowane na serwerze.', true);
-      } else if (code === 'invalid-email') {
-        setBookingFeedback('Podaj poprawny adres email.', true);
-      } else {
-        setBookingFeedback('Nie udalo sie wyslac formularza. Sprobuj ponownie za chwile.', true);
-      }
+    } catch {
+      setBookingFeedback('Błąd połączenia z serwerem. Sprawdź internet i spróbuj ponownie.', true);
       bookingSubmitBusy = false;
       updateBookingSubmitState();
       return;
@@ -3176,7 +3181,7 @@
     });
 
     saveState();
-    setBookingFeedback('Zapytanie zostalo wyslane. Sprawdz skrzynke email po potwierdzenie.', false);
+    setBookingFeedback('Zapytanie zostało zapisane! Jan skontaktuje się wkrótce.', false);
     clearBookingForm();
     resetBookingUi();
     refreshBookingAndAdmin();

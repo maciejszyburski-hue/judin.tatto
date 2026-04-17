@@ -548,15 +548,15 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      let emailSent = false;
       try {
         await sendBookingEmails(booking);
+        emailSent = true;
       } catch (error) {
-        console.error("Email delivery failed:", error);
-        sendJson(res, 502, { success: false, error: "email-delivery-failed" });
-        return;
+        console.error("Email delivery failed:", error.message || error);
       }
 
-      sendJson(res, 200, { success: true });
+      sendJson(res, 200, { success: true, emailSent });
       return;
     }
 
