@@ -213,16 +213,11 @@
     .gallery-item img {
       display: block; width: 100%; height: auto;
       filter: grayscale(20%) contrast(1.1);
+      image-orientation: from-image;
       transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), filter 0.5s;
-    }
-    .gallery-item.rotate-preview img {
-      transform: rotate(90deg) scale(1.34);
     }
     .gallery-item:hover img {
       transform: scale(1.04); filter: grayscale(0%) contrast(1.15);
-    }
-    .gallery-item.rotate-preview:hover img {
-      transform: rotate(90deg) scale(1.38);
     }
     .item-overlay {
       position: absolute; inset: 0;
@@ -465,22 +460,55 @@
   <script>
   /* ══════ DATA ══════ */
   const GALLERY = [
-    { id:1,  src:'./images/g1-tiger-sleeve.jpg',   style:'animal',    title:'Tygrys — Realistyczny Rękaw',       label:'Zwierzę', rotatePreview:true },
-    { id:2,  src:'./images/g2-skull-chest.jpg',    style:'blackgrey', title:'Czaszka — Black & Grey Realism',    label:'Klatka', rotatePreview:true },
-    { id:3,  src:'./images/g12-floral-sleeve.jpg', style:'large',     title:'Kwiaty — Realistyczny Rękaw',       label:'Rękaw' },
-    { id:4,  src:'./images/g3-color-fire.jpg',     style:'color',     title:'Ogień — Color Realism',             label:'Kolor', rotatePreview:true },
-    { id:5,  src:'./images/g4-blue-birds.jpg',     style:'color',     title:'Jaskółki — Soft Color Realism',     label:'Kolor' },
-    { id:6,  src:'./images/g13-compass.jpg',       style:'blackgrey', title:'Kompas — Realistyczny Detal',       label:'Detal' },
-    { id:7,  src:'./images/g5-phoenix.jpg',        style:'large',     title:'Feniks — Realistyczna Kompozycja',  label:'Rękaw', rotatePreview:true },
-    { id:8,  src:'./images/g6-clown.jpg',          style:'portrait',  title:'Klaun — Portrait Realism',          label:'Portret' },
-    { id:9,  src:'./images/g7-gdansk.jpg',         style:'color',     title:'Trójmiasto — Realistic Scene',      label:'Scena' },
-    { id:10, src:'./images/g8-villain-sleeve.jpg', style:'portrait',  title:'Postać — Character Realism',        label:'Portret', rotatePreview:true },
-    { id:11, src:'./images/g9-dog-realism.jpg',    style:'animal',    title:'Pies — Animal Realism',             label:'Zwierzę' },
-    { id:12, src:'./images/g10-eagle-chest.jpg',   style:'animal',    title:'Orzeł — Realizm na Klatce',         label:'Zwierzę' },
-    { id:13, src:'./images/g11-lettering.jpg',     style:'blackgrey', title:'Lettering & Realistyczny Detal',    label:'Detal' },
-    { id:14, src:'./images/g14-eagle-neck.jpg',    style:'animal',    title:'Orzeł — Black & Grey Realism',      label:'Szyja' },
-    { id:15, src:'./images/hero-main.jpg',         style:'large',     title:'Anioł & Krzyż — Duży Realizm',      label:'Rękaw', rotatePreview:true },
-    { id:16, src:'./images/hero-overlay.jpg',      style:'portrait',  title:'Samuraj — Portrait Realism',        label:'Portret' },
+    { id:1,  src:'./images/gallery/p01.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:2,  src:'./images/gallery/p02.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:3,  src:'./images/gallery/p03.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:4,  src:'./images/gallery/p04.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:5,  src:'./images/gallery/p05.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:6,  src:'./images/gallery/p06.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:7,  src:'./images/gallery/p07.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:8,  src:'./images/gallery/p08.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:9,  src:'./images/gallery/p09.jpg',  style:'color',     title:'Kolorowy Realizm',               label:'Kolor' },
+    { id:10, src:'./images/gallery/p10.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:11, src:'./images/gallery/p11.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:12, src:'./images/gallery/p12.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:13, src:'./images/gallery/p13.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:14, src:'./images/gallery/p14.jpg',  style:'color',     title:'Kolorowy Realizm',               label:'Kolor' },
+    { id:15, src:'./images/gallery/p15.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:16, src:'./images/gallery/p16.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:17, src:'./images/gallery/p17.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:18, src:'./images/gallery/p18.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:19, src:'./images/gallery/p19.jpg',  style:'color',     title:'Kolorowy Realizm',               label:'Kolor' },
+    { id:20, src:'./images/gallery/p20.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:21, src:'./images/gallery/p21.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:22, src:'./images/gallery/p22.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:23, src:'./images/gallery/p23.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:24, src:'./images/gallery/p24.jpg',  style:'color',     title:'Kolorowy Realizm',               label:'Kolor' },
+    { id:25, src:'./images/gallery/p25.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:26, src:'./images/gallery/p26.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:27, src:'./images/gallery/p27.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:28, src:'./images/gallery/p28.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:29, src:'./images/gallery/p29.jpg',  style:'color',     title:'Kolorowy Realizm',               label:'Kolor' },
+    { id:30, src:'./images/gallery/p30.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:31, src:'./images/gallery/p31.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:32, src:'./images/gallery/p32.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:33, src:'./images/gallery/p33.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:34, src:'./images/gallery/p34.jpg',  style:'color',     title:'Kolorowy Realizm',               label:'Kolor' },
+    { id:35, src:'./images/gallery/p35.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:36, src:'./images/gallery/p36.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:37, src:'./images/gallery/p37.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:38, src:'./images/gallery/p38.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:39, src:'./images/gallery/p39.jpg',  style:'color',     title:'Kolorowy Realizm',               label:'Kolor' },
+    { id:40, src:'./images/gallery/p40.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:41, src:'./images/gallery/p41.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:42, src:'./images/gallery/p42.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:43, src:'./images/gallery/p43.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:44, src:'./images/gallery/p44.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:45, src:'./images/gallery/p45.jpg',  style:'large',     title:'Realizm — Duży Projekt',         label:'Rękaw' },
+    { id:46, src:'./images/gallery/p46.jpg',  style:'portrait',  title:'Portret Realistyczny',           label:'Portret' },
+    { id:47, src:'./images/gallery/p47.jpg',  style:'blackgrey', title:'Black & Grey — Realizm',        label:'Black & Grey' },
+    { id:48, src:'./images/gallery/p48.jpg',  style:'animal',    title:'Realizm — Projekt',              label:'Realizm' },
+    { id:49, src:'./images/gallery/p49.jpg',  style:'color',     title:'Kolorowy Realizm',               label:'Kolor' },
   ];
 
   /* ══════ RENDER ══════ */
@@ -510,13 +538,13 @@
 
     setTimeout(() => {
       grid.innerHTML = items.map((item, i) => `
-        <div class="gallery-item ${item.rotatePreview ? 'rotate-preview' : ''}" data-index="${i}" data-style="${item.style}">
+        <div class="gallery-item" data-index="${i}" data-style="${item.style}">
           <img
             src="${item.src}"
             alt="${item.title} — tatuaż ${item.label}, Judin Tattoo Gdańsk"
             loading="lazy"
-            width="900" height="1200"
-            onerror="this.onerror=null;this.src='https://picsum.photos/seed/tatgal${item.id}/900/1200'"
+            width="901" height="1600"
+            onerror="this.onerror=null;this.src='https://picsum.photos/seed/tatgal${item.id}/901/1600'"
           />
           <div class="item-overlay">
             <div class="item-style">${STYLE_LABELS[item.style] || item.style}</div>

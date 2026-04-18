@@ -765,24 +765,18 @@
       position: relative; overflow: hidden;
     }
     .strip-item:nth-child(odd)  { width: 300px; aspect-ratio: 3/4; }
-    .strip-item:nth-child(even) { width: 420px; aspect-ratio: 4/3; }
+    .strip-item:nth-child(even) { width: 280px; aspect-ratio: 3/4; }
     .strip-item:first-child { width: 480px; aspect-ratio: 3/4; }
-    .strip-item--portrait { width: 260px !important; aspect-ratio: 9/16 !important; }
 
     .strip-item img {
-      width: 100%; height: 100%; object-fit: cover;
+      width: 100%; height: 100%; object-fit: cover; object-position: center top;
+      image-orientation: from-image;
       filter: grayscale(25%) contrast(1.1) brightness(0.9);
       transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), filter 0.5s;
       display: block;
     }
-    .strip-item.rotate-preview img {
-      transform: rotate(90deg) scale(1.34);
-    }
     .strip-item:hover img {
       transform: scale(1.06); filter: grayscale(0%) contrast(1.15) brightness(1);
-    }
-    .strip-item.rotate-preview:hover img {
-      transform: rotate(90deg) scale(1.38);
     }
     .strip-label {
       position: absolute; inset: 0;
@@ -1692,37 +1686,37 @@
     </div>
 
     <div class="strip-scroll" id="stripScroll">
-      <div class="strip-item rotate-preview">
-        <img src="./images/g1-tiger-sleeve.jpg" alt="Realistyczny rękaw — tygrys" loading="lazy" width="900" height="507" />
-        <div class="strip-label"><span>Animal Realism</span></div>
-      </div>
-      <div class="strip-item rotate-preview">
-        <img src="./images/g2-skull-chest.jpg" alt="Tatuaż klatka piersiowa — czaszka" loading="lazy" width="900" height="507" />
-        <div class="strip-label"><span>Skull Realism</span></div>
-      </div>
-      <div class="strip-item rotate-preview">
-        <img src="./images/g3-color-fire.jpg" alt="Kolorowy tatuaż — ogień i kostki" loading="lazy" width="900" height="507" />
-        <div class="strip-label"><span>Color Realism</span></div>
+      <div class="strip-item">
+        <img src="./images/gallery/p01.jpg" alt="Realistyczny tatuaż — Judin Tattoo Gdańsk" loading="lazy" width="901" height="1600" />
+        <div class="strip-label"><span>Black & Grey Realism</span></div>
       </div>
       <div class="strip-item">
-        <img src="./images/g4-blue-birds.jpg" alt="Realistyczne jaskółki — kolorowy tatuaż" loading="lazy" width="900" height="507" />
-        <div class="strip-label"><span>Soft Color Realism</span></div>
+        <img src="./images/gallery/p05.jpg" alt="Realistyczny tatuaż — Judin Tattoo Gdańsk" loading="lazy" width="901" height="1600" />
+        <div class="strip-label"><span>Realizm</span></div>
       </div>
       <div class="strip-item">
-        <img src="./images/g5-phoenix.jpg" alt="Realistyczny rękaw — feniks w kolorze" loading="lazy" width="900" height="507" />
-        <div class="strip-label"><span>Color Realism Sleeve</span></div>
-      </div>
-      <div class="strip-item strip-item--portrait">
-        <img src="./images/g6-clown.jpg" alt="Przedramię — klaun realistyczny" loading="lazy" width="900" height="1599" />
-        <div class="strip-label"><span>Portrait Realism</span></div>
+        <img src="./images/gallery/p09.jpg" alt="Realistyczny tatuaż — Judin Tattoo Gdańsk" loading="lazy" width="901" height="1600" />
+        <div class="strip-label"><span>Realizm</span></div>
       </div>
       <div class="strip-item">
-        <img src="./images/g7-gdansk.jpg" alt="Realistyczna scena — Gdańsk i Trójmiasto" loading="lazy" width="900" height="507" />
-        <div class="strip-label"><span>Realistic Scene</span></div>
+        <img src="./images/gallery/p13.jpg" alt="Realistyczny tatuaż — Judin Tattoo Gdańsk" loading="lazy" width="901" height="1600" />
+        <div class="strip-label"><span>Realizm</span></div>
       </div>
       <div class="strip-item">
-        <img src="./images/g8-villain-sleeve.jpg" alt="Realistyczny rękaw — postać filmowa" loading="lazy" width="900" height="507" />
-        <div class="strip-label"><span>Character Realism</span></div>
+        <img src="./images/gallery/p17.jpg" alt="Realistyczny tatuaż — Judin Tattoo Gdańsk" loading="lazy" width="901" height="1600" />
+        <div class="strip-label"><span>Realizm</span></div>
+      </div>
+      <div class="strip-item">
+        <img src="./images/gallery/p21.jpg" alt="Realistyczny tatuaż — Judin Tattoo Gdańsk" loading="lazy" width="901" height="1600" />
+        <div class="strip-label"><span>Realizm</span></div>
+      </div>
+      <div class="strip-item">
+        <img src="./images/gallery/p25.jpg" alt="Realistyczny tatuaż — Judin Tattoo Gdańsk" loading="lazy" width="901" height="1600" />
+        <div class="strip-label"><span>Realizm</span></div>
+      </div>
+      <div class="strip-item">
+        <img src="./images/gallery/p29.jpg" alt="Realistyczny tatuaż — Judin Tattoo Gdańsk" loading="lazy" width="901" height="1600" />
+        <div class="strip-label"><span>Realizm</span></div>
       </div>
     </div>
 
