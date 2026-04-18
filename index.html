@@ -384,9 +384,9 @@
     .hero-bg::before {
       content: '';
       position: absolute; inset: 0;
-      background: url('./images/hero-wing-desktop.png') center center / cover no-repeat;
-      opacity: 0.96;
-      filter: saturate(1.02) contrast(1.03) drop-shadow(0 18px 80px rgba(216,161,104,0.24));
+      background: url('./images/gallery/p07.jpg') center top / cover no-repeat;
+      opacity: 0.72;
+      filter: saturate(0.82) contrast(1.06) brightness(0.88);
     }
     .hero-bg::after {
       content: '';
@@ -1393,8 +1393,8 @@
       .intro-enter { bottom: 2rem; font-size: 0.62rem; letter-spacing: 0.24em; gap: 0.75rem; }
       .intro-enter::before, .intro-enter::after { width: 22px; }
       .hero-bg::before {
-        background: url('./images/hero-wing-mobile.png') center center / cover no-repeat;
-        opacity: 0.96;
+        background: url('./images/gallery/p07.jpg') center top / cover no-repeat;
+        opacity: 0.72;
       }
       .hero-bg::after {
         background:
@@ -1403,9 +1403,9 @@
           linear-gradient(180deg, rgba(7,6,10,0.18) 0%, rgba(7,6,10,0.52) 62%, rgba(7,6,10,0.88) 100%);
       }
       body::after {
-        background-image: var(--flash-bg), url('./images/hero-wing-mobile.png');
-        background-size: 220px 220px, cover;
-        background-position: center top, center top;
+        background-image: var(--flash-bg);
+        background-size: 220px 220px;
+        background-position: center top;
         opacity: 0.07;
       }
       .hero-content { padding: 0 1.25rem 5rem; }
