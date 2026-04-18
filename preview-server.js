@@ -447,6 +447,18 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (requestPath === "/api/debug/env") {
+      /* Diagnostic endpoint — shows which env vars are loaded (no secrets exposed) */
+      sendJson(res, 200, {
+        RESEND_API_KEY: resendApiKey ? `set (starts with: ${resendApiKey.slice(0, 5)}...)` : "MISSING",
+        MAIL_FROM: mailFrom || "MISSING",
+        MAIL_TO: mailTo || "MISSING",
+        MAIL_REPLY_TO: mailReplyTo || "(optional, not set)",
+        emailDeliveryConfigured: emailDeliveryConfigured(),
+      });
+      return;
+    }
+
     if (requestPath === "/api/recaptcha/config") {
       sendJson(res, 200, {
         enabled: Boolean(recaptchaSiteKey && recaptchaSecretKey),
