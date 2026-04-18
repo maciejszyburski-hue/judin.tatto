@@ -470,7 +470,7 @@
         <form method="post" action="/admin/logout" style="display:inline-flex;">
           <button class="btn" type="submit">Wyloguj</button>
         </form>
-        <button class="btn primary" id="adminResetBtn" type="button">Przywróć dane testowe</button>
+        <button class="btn primary" id="adminResetBtn" type="button">Odśwież dane</button>
       </div>
     </div>
 
@@ -546,7 +546,6 @@
   <script>
     const MONTHS_PL = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
     const SLOTS = ['10:00','11:30','13:00','14:30','16:00','17:30'];
-    const STORAGE_KEY = 'judin-admin-data-v2';
     const STATUS_OPTIONS = ['Nowa', 'Potwierdzona', 'W trakcie ustaleń', 'Zrealizowana', 'Anulowana'];
 
     const STATUS_STYLE = {
@@ -588,37 +587,29 @@
     }
 
     function createDefaultState() {
-      const today = getTodayDate();
-      const d1 = toKey(addDays(today, 1));
-      const d2 = toKey(addDays(today, 2));
-      const d3 = toKey(addDays(today, 4));
-      const dOff = toKey(addDays(today, 6));
       return {
-        availability: {
-          blockedDates: [dOff],
-          blockedSlots: { [d1]: ['17:30'], [d2]: ['10:00','11:30'], [d3]: ['16:00'] }
-        },
-        appointments: [
-          { id:'APT-1001', name:'Karolina Maj',       phone:'+48 501 210 310', email:'karolina.maj@email.com',  service:'Tatuaż średni', instagram:'@karola.maj',  notes:'Florystyczny motyw na przedramię, czarno-szary.', date:d1, time:'13:00', status:'Potwierdzona' },
-          { id:'APT-1002', name:'Michał Wrona',        phone:'+48 533 121 515', email:'m.wrona@email.com',        service:'Konsultacja',   instagram:'Messenger',    notes:'Cover starego małego tatuażu na barku.',          date:d2, time:'14:30', status:'Nowa' },
-          { id:'APT-1003', name:'Julia Sokołowska',    phone:'+48 606 119 772', email:'j.sokolowska@email.com',  service:'Tatuaż duży',   instagram:'@jula.soko',   notes:'Projekt rękawa, pierwsza sesja.',                  date:d3, time:'11:30', status:'W trakcie ustaleń' },
-        ]
+        appointments: [],
+        availability: { blockedDates: [], blockedSlots: {} }
       };
     }
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return createDefaultState();
-        const p = JSON.parse(raw);
-        if (!p || !Array.isArray(p.appointments) || !p.availability) return createDefaultState();
-        p.availability.blockedDates = Array.isArray(p.availability.blockedDates) ? p.availability.blockedDates : [];
-        p.availability.blockedSlots = p.availability.blockedSlots || {};
-        return p;
-      } catch { return createDefaultState(); }
+    async function loadStateFromServer() {
+      const r = await fetch('/api/admin/data');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      if (!data || !Array.isArray(data.appointments) || !data.availability) return createDefaultState();
+      data.availability.blockedDates = Array.isArray(data.availability.blockedDates) ? data.availability.blockedDates : [];
+      data.availability.blockedSlots = data.availability.blockedSlots || {};
+      return data;
     }
 
-    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function saveState() {
+      fetch('/api/admin/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state),
+      }).catch(e => console.error('Zapis danych nieudany:', e));
+    }
     function sortAppointments() {
       state.appointments.sort((a,b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
     }
@@ -647,8 +638,8 @@
       });
     }
 
-    let state = loadState();
-    let availabilityFocusDate = state.appointments[0]?.date || toKey(addDays(getTodayDate(), 1));
+    let state = createDefaultState();
+    let availabilityFocusDate = toKey(addDays(getTodayDate(), 1));
 
     // ── Render: KPIs ──
     function renderKpis() {
@@ -848,12 +839,16 @@
     }
 
     // ── Event listeners ──
-    adminResetBtn.addEventListener('click', () => {
-      state = createDefaultState();
-      editingRows.clear();
-      availabilityFocusDate = state.appointments[0]?.date || toKey(addDays(getTodayDate(), 1));
-      saveState();
-      refresh();
+    adminResetBtn.addEventListener('click', async () => {
+      if (!window.confirm('Odświeżyć dane z serwera? Niezapisane zmiany zostaną utracone.')) return;
+      try {
+        state = await loadStateFromServer();
+        editingRows.clear();
+        availabilityFocusDate = state.appointments[0]?.date || toKey(addDays(getTodayDate(), 1));
+        refresh();
+      } catch(e) {
+        alert('Błąd odświeżania danych. Sprawdź połączenie.');
+      }
     });
     availabilityDateInput.addEventListener('change', () => {
       availabilityFocusDate = availabilityDateInput.value;
@@ -879,7 +874,30 @@
       renderAppointments();
     });
 
-    refresh();
+    /* ── Async init: pobierz dane z serwera ── */
+    (async () => {
+      try {
+        state = await loadStateFromServer();
+        availabilityFocusDate = state.appointments[0]?.date || toKey(addDays(getTodayDate(), 1));
+      } catch(e) {
+        console.error('Nie można załadować danych z serwera:', e);
+      }
+      refresh();
+
+      /* Auto-odświeżanie co 60s gdy panel jest otwarty i nikt nic nie edytuje */
+      setInterval(async () => {
+        if (editingRows.size > 0) return;
+        try {
+          const fresh = await loadStateFromServer();
+          const prevCount = state.appointments.length;
+          state = fresh;
+          if (fresh.appointments.length > prevCount) {
+            availabilityFocusDate = fresh.appointments[0]?.date || availabilityFocusDate;
+          }
+          refresh();
+        } catch(e) { /* cicho */ }
+      }, 60000);
+    })();
   </script>
 </body>
 </html>

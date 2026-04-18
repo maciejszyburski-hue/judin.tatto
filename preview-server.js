@@ -5,6 +5,37 @@ const path = require("path");
 
 loadDotEnv(path.join(__dirname, ".env"));
 
+/* ── Server-side booking storage ── */
+const dataFilePath = path.join(__dirname, "admin-data.json");
+
+function loadAdminData() {
+  try {
+    if (fs.existsSync(dataFilePath)) {
+      const raw = fs.readFileSync(dataFilePath, "utf8");
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.appointments)) {
+        parsed.availability = parsed.availability || { blockedDates: [], blockedSlots: {} };
+        parsed.availability.blockedDates = Array.isArray(parsed.availability.blockedDates) ? parsed.availability.blockedDates : [];
+        parsed.availability.blockedSlots = parsed.availability.blockedSlots || {};
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error("Failed to load admin data:", e.message);
+  }
+  return { appointments: [], availability: { blockedDates: [], blockedSlots: {} } };
+}
+
+function saveAdminData(data) {
+  try {
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), "utf8");
+  } catch (e) {
+    console.error("Failed to save admin data:", e.message);
+  }
+}
+
+let adminData = loadAdminData();
+
 const port = process.env.PORT || 4335;
 const baseDir = __dirname;
 const basePath = path.resolve(baseDir);
@@ -595,7 +626,52 @@ const server = http.createServer(async (req, res) => {
         console.error("Email delivery failed:", error.message || error);
       }
 
+      /* ── Zapis rezerwacji do admin-data.json ── */
+      const newAppointment = {
+        ...booking,
+        id: `APT-${Date.now()}`,
+        status: "Nowa",
+        createdAt: new Date().toISOString(),
+      };
+      adminData.appointments.push(newAppointment);
+      saveAdminData(adminData);
+
       sendJson(res, 200, { success: true, emailSent });
+      return;
+    }
+
+    /* ── Admin data API ── */
+    if (requestPath === "/api/admin/data") {
+      if (!authenticated) {
+        sendJson(res, 401, { error: "unauthorized" });
+        return;
+      }
+
+      if (req.method === "GET") {
+        sendJson(res, 200, adminData);
+        return;
+      }
+
+      if (req.method === "POST") {
+        let body = null;
+        try {
+          const rawBody = await readBody(req);
+          body = JSON.parse(rawBody || "{}");
+        } catch {
+          sendJson(res, 400, { error: "invalid-json" });
+          return;
+        }
+        if (!body || !Array.isArray(body.appointments) || !body.availability) {
+          sendJson(res, 400, { error: "invalid-data" });
+          return;
+        }
+        adminData = body;
+        saveAdminData(adminData);
+        sendJson(res, 200, { ok: true });
+        return;
+      }
+
+      sendJson(res, 405, { error: "method-not-allowed" });
       return;
     }
 
