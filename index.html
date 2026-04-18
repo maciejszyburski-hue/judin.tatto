@@ -653,6 +653,7 @@
       letter-spacing: 0.18em;
       text-transform: uppercase;
       cursor: none;
+      pointer-events: auto;
     }
     .mobile-video-launch svg { flex-shrink: 0; }
     .studio-video-frame.mobile-manual .mobile-video-launch,
@@ -1991,6 +1992,7 @@
               <div class="form-group">
                 <label for="clientEmail">Email</label>
                 <input id="clientEmail" type="email" placeholder="jan@email.com" />
+                <p id="emailJunkNote" style="display:none;margin-top:0.45rem;font-size:0.75rem;color:rgba(237,232,223,0.5);line-height:1.5;">Jeśli używasz Outlook / Hotmail — sprawdź folder Niechciana poczta.</p>
               </div>
               <div class="form-group">
                 <label for="clientService">Usługa</label>
@@ -2692,6 +2694,7 @@
   const clientInstagramInput = document.getElementById('clientInstagram');
   const clientNotesInput = document.getElementById('clientNotes');
   const hpField = document.getElementById('hpField');
+  const emailJunkNote = document.getElementById('emailJunkNote');
   const adminEditToggle = document.getElementById('adminEditToggle');
   const adminResetBtn = document.getElementById('adminResetBtn');
   const adminKpis = document.getElementById('adminKpis');
@@ -3208,6 +3211,12 @@
     adminEditToggle.textContent = `Tryb edycji: ${adminEditMode ? 'Wł.' : 'Wył.'}`;
     adminEditToggle.classList.toggle('active', adminEditMode);
     renderAdminAppointments();
+  });
+
+  clientEmailInput.addEventListener('blur', () => {
+    const val = clientEmailInput.value.trim().toLowerCase();
+    const isOutlook = val.includes('@hotmail.') || val.includes('@outlook.') || val.includes('@live.');
+    emailJunkNote.style.display = isOutlook ? 'block' : 'none';
   });
 
   adminResetBtn.addEventListener('click', () => {
