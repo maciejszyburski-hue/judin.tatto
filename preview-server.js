@@ -448,7 +448,6 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (requestPath === "/api/debug/env") {
-      /* Diagnostic endpoint — shows which env vars are loaded (no secrets exposed) */
       sendJson(res, 200, {
         RESEND_API_KEY: resendApiKey ? `set (starts with: ${resendApiKey.slice(0, 5)}...)` : "MISSING",
         MAIL_FROM: mailFrom || "MISSING",
@@ -456,6 +455,34 @@ const server = http.createServer(async (req, res) => {
         MAIL_REPLY_TO: mailReplyTo || "(optional, not set)",
         emailDeliveryConfigured: emailDeliveryConfigured(),
       });
+      return;
+    }
+
+    if (requestPath === "/api/debug/send-test") {
+      /* Sends a real test email and returns the full Resend response */
+      if (!emailDeliveryConfigured()) {
+        sendJson(res, 503, { error: "email-not-configured" });
+        return;
+      }
+      try {
+        const response = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: mailFrom,
+            to: normalizeEmailRecipients(mailTo),
+            subject: "Test email — Judin Tattoo",
+            text: "To jest testowy email z serwera Judin Tattoo. Jeśli to widzisz — działa!",
+          }),
+        });
+        const result = await response.json().catch(() => null);
+        sendJson(res, 200, { httpStatus: response.status, resendResponse: result });
+      } catch (err) {
+        sendJson(res, 500, { error: err.message });
+      }
       return;
     }
 
