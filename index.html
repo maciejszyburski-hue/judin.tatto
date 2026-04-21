@@ -1408,10 +1408,18 @@
         background-position: center top, center top;
         opacity: 0.07;
       }
-      .hero-content { padding: 0 1.25rem 5rem; }
+      #hero { justify-content: flex-start; }
+      .hero-content {
+        padding: 6rem 1.25rem 0;
+        min-height: 100svh;
+        display: flex; flex-direction: column;
+      }
+      .hero-bottom { margin-top: auto; padding-bottom: 5.5rem; }
+      .hero-desc { display: none; }
+      .hero-actions { flex-direction: column; gap: 0.7rem; }
+      .hero-actions .btn-ghost { display: none; }
       .hero-title { font-size: clamp(3.4rem, 18vw, 8rem); letter-spacing: 0.04em; }
-      .hero-italic { font-size: clamp(1.45rem, 9vw, 2.5rem); margin-bottom: 1.6rem; }
-      .hero-desc { max-width: 100%; line-height: 1.75; font-size: 0.92rem; }
+      .hero-italic { font-size: clamp(1.45rem, 9vw, 2.5rem); margin-bottom: 0; }
       .btn-primary { width: 100%; justify-content: center; padding: 0.95rem 1.1rem; }
       .strip-header { align-items: flex-start; flex-direction: column; gap: 1.2rem; }
       .strip-footer { align-items: flex-start; flex-direction: column; gap: 1rem; }
@@ -1466,6 +1474,145 @@
       .intro-fallback.mobile-visible { display: block; }
       .showreel-play, .mobile-video-launch { cursor: auto; }
     }
+
+    /* ═══════════════════════════════════ LANG POPUP ═══ */
+    #langPopup {
+      position: fixed; inset: 0; z-index: 3000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(7,6,10,0.82);
+      backdrop-filter: blur(22px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    #langPopup.visible { opacity: 1; pointer-events: auto; }
+    .lang-box {
+      position: relative;
+      max-width: 460px; width: calc(100% - 2.5rem);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 3.5rem 3rem 2.8rem;
+      text-align: center;
+      transform: translateY(24px);
+      transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    #langPopup.visible .lang-box { transform: translateY(0); }
+    .lang-box::before {
+      content: '';
+      position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--azure) 40%, transparent);
+    }
+    .lang-close {
+      position: absolute; top: 1rem; right: 1rem;
+      width: 30px; height: 30px;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; line-height: 1;
+      transition: border-color 0.25s, color 0.25s;
+    }
+    .lang-close:hover { border-color: rgba(255,255,255,0.4); color: var(--cream); }
+    .lang-eyebrow {
+      font-family: var(--ui-font); font-size: 0.62rem;
+      letter-spacing: 0.38em; text-transform: uppercase;
+      color: var(--azure); margin-bottom: 1.1rem;
+    }
+    .lang-title {
+      font-family: var(--display-font); font-size: 2rem;
+      letter-spacing: 0.05em; color: var(--cream);
+      margin-bottom: 0.5rem; line-height: 1.1;
+    }
+    .lang-subtitle {
+      font-size: 0.8rem; color: var(--muted); letter-spacing: 0.03em;
+      line-height: 1.65; margin-bottom: 2.4rem;
+    }
+    .lang-options {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;
+      margin-bottom: 1.8rem;
+    }
+    .lang-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--cream); padding: 1.4rem 1rem 1.2rem;
+      font-family: var(--ui-font); cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+      transition: border-color 0.3s, background 0.3s, transform 0.25s;
+      text-align: center;
+    }
+    .lang-btn:hover {
+      border-color: var(--azure);
+      background: rgba(216,161,104,0.06);
+      transform: translateY(-3px);
+    }
+    .lang-flag { font-size: 2rem; line-height: 1; display: block; }
+    .lang-name {
+      font-size: 0.78rem; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--cream);
+      display: block;
+    }
+    .lang-native {
+      font-size: 0.62rem; color: rgba(237,232,223,0.35);
+      letter-spacing: 0.1em; display: block;
+    }
+    .lang-esc {
+      font-family: var(--ui-font); font-size: 0.6rem;
+      letter-spacing: 0.22em; color: rgba(237,232,223,0.22);
+      text-transform: uppercase;
+    }
+    @media (max-width: 480px) {
+      .lang-box { padding: 3rem 1.5rem 2.2rem; }
+      .lang-title { font-size: 1.6rem; }
+    }
+
+    /* ═══════════════════════════════════ ADMIN GATE ═══ */
+    #admin-panel { position: relative; }
+    #admin-panel.admin-unlocked { display: block !important; }
+    .admin-gate {
+      display: flex; align-items: center; justify-content: center;
+      padding: 8rem 2rem;
+      background: var(--dark);
+    }
+    .admin-gate-box {
+      position: relative; text-align: center;
+      max-width: 400px; width: 100%;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 3.5rem 2.5rem 3rem;
+    }
+    .admin-gate-box::before {
+      content: '';
+      position: absolute; top: 0; left: 15%; right: 15%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--azure), transparent);
+    }
+    .admin-gate-icon {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem; color: var(--azure);
+    }
+    .admin-gate-eyebrow {
+      font-family: var(--ui-font); font-size: 0.62rem;
+      letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--azure); margin-bottom: 0.9rem;
+    }
+    .admin-gate-title {
+      font-family: var(--display-font); font-size: 2rem;
+      letter-spacing: 0.05em; margin-bottom: 0.7rem;
+    }
+    .admin-gate-desc {
+      font-size: 0.82rem; color: var(--muted); line-height: 1.75;
+      margin-bottom: 2rem;
+    }
+    .admin-gate-btn {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: linear-gradient(135deg, #f2c98f, #c88a4d);
+      color: var(--ink); border: none;
+      padding: 0.9rem 2rem;
+      font-family: var(--ui-font); font-size: 0.75rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      text-decoration: none; cursor: pointer;
+      transition: opacity 0.25s, transform 0.2s;
+    }
+    .admin-gate-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
   </style>
 </head>
 <body>
@@ -1511,6 +1658,29 @@
     </div>
     <div class="intro-sub" id="introSub">Tattoo Atelier — Gdańsk</div>
     <div class="intro-enter" id="introEnter">Kliknij aby pominąć</div>
+  </div>
+
+  <!-- ══════════════ LANGUAGE POPUP ══════════════ -->
+  <div id="langPopup" role="dialog" aria-modal="true" aria-label="Choose language">
+    <div class="lang-box">
+      <button class="lang-close" id="langCloseBtn" aria-label="Close">✕</button>
+      <div class="lang-eyebrow">Judin Tattoo Studio</div>
+      <h2 class="lang-title">Choose Language</h2>
+      <p class="lang-subtitle">Select your preferred language<br>Wybierz swój język</p>
+      <div class="lang-options">
+        <button class="lang-btn lang-pl" id="langPlBtn">
+          <span class="lang-flag">🇵🇱</span>
+          <span class="lang-name">Polski</span>
+          <span class="lang-native">Polish</span>
+        </button>
+        <button class="lang-btn lang-en" id="langEnBtn">
+          <span class="lang-flag">🇬🇧</span>
+          <span class="lang-name">English</span>
+          <span class="lang-native">angielski</span>
+        </button>
+      </div>
+      <p class="lang-esc">Press ESC to dismiss</p>
+    </div>
   </div>
 
   <!-- ══════════════ NAV ══════════════ -->
@@ -2024,7 +2194,22 @@
   </section>
 
   <section id="admin-panel">
-    <div class="admin-shell">
+    <!-- Gate: visible when not authenticated with Railway session -->
+    <div class="admin-gate" id="adminGate">
+      <div class="admin-gate-box">
+        <div class="admin-gate-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div class="admin-gate-eyebrow">Restricted Access</div>
+        <h2 class="admin-gate-title">Panel Admina</h2>
+        <p class="admin-gate-desc">Wymagane logowanie przez panel administracyjny. Po zalogowaniu wróć na tę stronę.</p>
+        <a class="admin-gate-btn" id="adminGateBtn" href="/admin/login">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Zaloguj się
+        </a>
+      </div>
+    </div>
+    <div class="admin-shell" id="adminShell" style="display:none">
       <div class="reveal">
         <div class="section-label">Panel admina</div>
         <h2 class="section-heading">Dashboard<br><em>Rezerwacji</em></h2>
@@ -2094,15 +2279,15 @@
         <div class="card-label">Telefon & Email</div>
         <div class="card-value">
           <a href="tel:+48780792172">+48 780 792 172</a><br>
-          <a href="mailto:kontakt@judin.tattoo" class="small">kontakt@judin.tattoo</a>
+          <a href="mailto:Judinink91@gmail.com" class="small">Judinink91@gmail.com</a>
         </div>
       </div>
       <div class="contact-card">
         <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
         <div class="card-label">Social Media</div>
         <div class="card-value">
-          <a href="https://www.booksy.com" target="_blank" rel="noopener">Booksy</a><br>
-          <a href="https://www.instagram.com" target="_blank" rel="noopener" class="small">@judin.tattoo</a>
+          <a href="https://www.facebook.com/share/1GynB7QBsg/" target="_blank" rel="noopener">Facebook</a><br>
+          <a href="https://www.instagram.com/judin.tattoo" target="_blank" rel="noopener" class="small">@judin.tattoo</a>
         </div>
       </div>
     </div>
@@ -3224,6 +3409,353 @@
 
   renderCalendar();
   refreshBookingAndAdmin();
+
+  /* ══════════════════════════════════════════════════════
+     LANGUAGE POPUP
+  ══════════════════════════════════════════════════════ */
+  const i18n = {
+    pl: {
+      stat_years:'Lat doświadczenia', stat_clients:'Klientów', stat_rating:'Ocena Booksy',
+      hero_desc:'Realistyczne tatuaże tworzone z precyzją: portrety, zwierzęta, cienie i duże kompozycje dopasowane do ciała. Umów konsultację i zamień pomysł w obraz na skórze.',
+      btn_book:'Umów wizytę', btn_gallery:'Zobacz galerię',
+      drag_hint:'Przeciągnij aby przeglądać', btn_open_gallery:'Otwórz Galerię', btn_full_gallery:'Pełna galeria',
+      gallery_label:'Portfolio', gallery_heading:'Wybrane<br><em>Realizacje</em>',
+      showreel_label:'Showreel', showreel_heading:'W akcji',
+      about_label:'O artyście', btn_consult:'Umów konsultację',
+      about_texts:[
+        'Do mnie ludzie przychodzą nie tylko po tatuaż.',
+        'Bardzo często przychodzą też po coś głębszego — po rozmowę, zrozumienie i poczucie, że ktoś naprawdę ich widzi.',
+        'Podczas pracy staram się wyczuć człowieka, jego energię, charakter i to, z czym aktualnie mierzy się w życiu.',
+        'Dlatego moje tatuaże nie są tylko ozdobą na skórze.',
+        'Dla wielu osób stają się symbolem ważnego etapu, decyzji, przełomu albo nowego kierunku.',
+        'Na sesji nie chodzi tylko o wykonanie projektu.',
+        'To także przestrzeń, w której rozmawiamy, otwieramy różne tematy i często patrzymy głębiej — na to, co człowieka blokuje, co go zatrzymuje i dokąd naprawdę chce iść.',
+        'Nie pracuję jak klasyczny psycholog.',
+        'Mam swoje własne podejście — oparte na doświadczeniu, intuicji, szczerości i prawdziwej rozmowie.',
+        'Czasem jedna sesja daje człowiekowi nie tylko nowy tatuaż, ale też nowe spojrzenie na siebie i swoje życie.',
+        'Dlatego wielu klientów wraca do mnie nie tylko po kolejne projekty, ale też po atmosferę, zaufanie i poczucie, że trafili do miejsca, gdzie są naprawdę zrozumiani.',
+        'Jeśli szukasz nie tylko dobrego tatuażu, ale też prawdziwego podejścia i głębszego znaczenia — jesteś we właściwym miejscu.',
+      ],
+      process_label:'Jak pracuję', process_heading:'Mój <em>Proces</em>',
+      process_titles:['Konsultacja','Projekt','Sesja','Opieka po'],
+      process_descs:[
+        'Rozmawiamy o Twoim pomyśle, miejscu i stylu. Odpowiem na wszystkie pytania i zaproponuję kierunek projektu.',
+        'Tworzę indywidualny projekt dopasowany do Ciebie i konkretnego miejsca na ciele. Dla każdego klienta przygotowuję wizualizację na iPadzie bezpośrednio na zdjęciu skóry, żeby jak najprecyzyjniej dopasować kompozycję, skalę i układ jeszcze przed sesją.',
+        'Pracuję w sterylnym studio, w komfortowych warunkach. Używam certyfikowanych igieł i atramentów. Twoje bezpieczeństwo to priorytet.',
+        'Dostajesz pełną instrukcję pielęgnacji. Jestem dostępny przez miesiąc po sesji — możesz pytać o cokolwiek.',
+      ],
+      reviews_label:'Opinie moich klientów', reviews_heading:'Co mówią po<br><em>swojej wizycie</em>',
+      reviews_intro:'To kilka prawdziwych opinii z Google od osób, które były już na konsultacji albo sesji. Najczęściej wracają w nich trzy rzeczy: precyzja, atmosfera i podejście do człowieka.',
+      reviews_meta_score:'5.0 / opinie Google', reviews_meta_label:'Wybrane recenzje klientów',
+      review_texts:[
+        'Pełna profeska, jak i podejście do klienta tak i do tattoo. Dzisiaj zrobił mi czwarty tatuaż, z każdego jestem w pełni zadowolony.',
+        'Projekt szybko wykonany praktycznie bez poprawek i w pełni akceptowalny. Wykonanie przeszło moje oczekiwania. Świetna robota, pełen profesjonalizm.',
+        'Judin zna się na swoim fachu, potrafi doradzić i trafnie dopasować projekt, super atmosfera, na pewno będę wracać do tego studia.',
+        'Wykonanie na najwyższym poziomie, linie są precyzyjne, detale dopracowane, a całość wygląda lepiej niż się spodziewałam.',
+        'To nie jest tylko rysunek — to tatuaż z historią. Jan z ogromną delikatnością, precyzją i profesjonalizmem spełnił to marzenie.',
+        'Wykonanie jest bardzo dokładne, linie równe, a każdy detal dopracowany. W studiu panowała luźna, swobodna atmosfera, zero napinki.',
+      ],
+      review_dates:['2 miesiące temu','miesiąc temu','2 miesiące temu','4 miesiące temu','4 miesiące temu','4 miesiące temu'],
+      pricing_label:'Cennik', pricing_heading:'Przejrzyste<br><em>Ceny</em>',
+      pricing_th_svc:'Usługa', pricing_th_price:'Cena',
+      pricing_names:['Godzina realizmu <span class="price-badge">detal</span>','Średni projekt realistyczny','Cała sesja / Duży realizm'],
+      pricing_descs:[
+        'Realistyczne detale, cieniowanie, dopracowanie referencji — wycena na miejscu',
+        'Portret, zwierzę, czaszka lub motyw z dużą ilością światła i cienia',
+        'Rękaw, plecy, klatka lub wielogodzinna realistyczna kompozycja',
+      ],
+      pricing_note:'Ostateczna cena ustalana jest indywidualnie podczas konsultacji. Wymagana zaliczka 150 zł przy rezerwacji, a zaliczka jest częścią płatności za tatuaż i zostaje odliczona od końcowej ceny.',
+      booking_label:'Rezerwacja', booking_title:'Umów się<br><em>Online</em>',
+      booking_info:'Wybierz termin i godzinę. Skontaktuję się z Tobą w ciągu 24 godzin, żeby potwierdzić rezerwację i omówić szczegóły projektu.',
+      booking_li:['Potwierdzenie w ciągu 24h','Zaliczka dopiero po konsultacji','Zaliczka jest częścią płatności za tatuaż','Sterylne, certyfikowane studio'],
+      slots_label:'Dostępne godziny', summary_label:'Wybrany termin',
+      lbl_name:'Imię i nazwisko', ph_name:'Jan Kowalski', lbl_phone:'Telefon', lbl_email:'Email',
+      lbl_svc:'Usługa', svc_opts:['Konsultacja','Tatuaż mały','Tatuaż średni','Tatuaż duży','Poprawka / cover'],
+      lbl_ig:'Instagram lub kontakt dodatkowy', ph_ig:'@twojprofil lub Messenger',
+      lbl_notes:'Opis projektu', ph_notes:'Opisz krótko motyw, rozmiar, miejsce na ciele i preferowany styl...',
+      form_note:'Po zapisaniu termin trafi do panelu admina jako oczekujący. Administrator może potem edytować dane klienta, potwierdzić wizytę albo zablokować inne godziny.',
+      btn_send:'Wyślij zapytanie', day_names:['Pn','Wt','Śr','Cz','Pt','Sb','Nd'],
+      contact_label:'Kontakt', contact_heading:'Znajdź<br><em>Nas</em>',
+      card_address:'Adres', card_hours:'Godziny otwarcia', hours_days:'Poniedziałek – Niedziela',
+      card_phone:'Telefon & Email', card_social:'Social Media',
+      nav_about:'O mnie', nav_gallery:'Galeria', nav_pricing:'Cennik', nav_booking:'Booking', nav_contact:'Kontakt', nav_cta:'Pełna Galeria',
+      footer_copy:'© 2026 Judin Tattoo — Wszelkie prawa zastrzeżone',
+    },
+    en: {
+      stat_years:'Years of experience', stat_clients:'Happy clients', stat_rating:'Booksy rating',
+      hero_desc:'Realistic tattoos crafted with precision — portraits, animals, deep shading and large-scale compositions tailored to your body. Book a consultation and turn your idea into art.',
+      btn_book:'Book a session', btn_gallery:'View gallery',
+      drag_hint:'Drag to explore', btn_open_gallery:'Open Gallery', btn_full_gallery:'Full gallery',
+      gallery_label:'Portfolio', gallery_heading:'Selected<br><em>Works</em>',
+      showreel_label:'Showreel', showreel_heading:'In Action',
+      about_label:'About the Artist', btn_consult:'Book a consultation',
+      about_texts:[
+        'People come to me for more than just a tattoo.',
+        'Very often they come for something deeper — a real conversation, to feel understood, to feel truly seen.',
+        "As I work, I try to read the person — their energy, their character, and what they're going through at this point in their life.",
+        'That\'s why my tattoos are never just decorations.',
+        'For many people they become a symbol of a significant chapter, a decision, a breakthrough or a new direction.',
+        'A session isn\'t just about executing a design.',
+        'It\'s also a space where we talk, open up, and often look deeper — at what holds someone back, what keeps them stuck, and where they really want to go.',
+        'I\'m not a classic psychologist.',
+        'I have my own approach — built on experience, intuition, honesty and authentic conversation.',
+        'Sometimes a single session gives someone not just a new tattoo, but a new perspective on themselves and their life.',
+        'That\'s why many clients come back — not only for new work, but for the atmosphere, the trust, and the feeling that they found a place where they\'re truly understood.',
+        'If you\'re looking for more than just a great tattoo — a real approach and deeper meaning — you\'re in the right place.',
+      ],
+      process_label:'How I work', process_heading:'My <em>Process</em>',
+      process_titles:['Consultation','Design','Session','Aftercare'],
+      process_descs:[
+        'We talk about your idea, placement and style. I\'ll answer every question and suggest a direction for the design.',
+        'I create a custom design tailored to you and the specific area of your body. For every client I prepare a visual mockup on iPad — directly on a photo of your skin — to perfectly dial in the composition, scale and layout before the session.',
+        'I work in a sterile studio in a comfortable environment, using certified needles and inks. Your safety is always the priority.',
+        'You get a full aftercare guide. I\'m available for a month after your session — feel free to ask anything.',
+      ],
+      reviews_label:'Client reviews', reviews_heading:'What they say<br><em>after their visit</em>',
+      reviews_intro:"A selection of real Google reviews from people who've had a consultation or session. Three things come up again and again: precision, atmosphere and a genuine personal approach.",
+      reviews_meta_score:'5.0 / Google Reviews', reviews_meta_label:'Selected client reviews',
+      review_texts:[
+        'Total professionalism — both in his approach to clients and to the actual tattoo. He did my fourth piece today and I\'ve been completely happy with every one of them.',
+        'Design delivered fast, practically without revisions, and fully to my satisfaction. The execution exceeded my expectations. Great work, true professionalism.',
+        'Judin really knows his craft — great at advising and matching the design. Amazing atmosphere. I\'ll definitely be coming back.',
+        'Work at the highest level — lines are precise, details are flawless, and the result looks even better than I expected.',
+        'This isn\'t just a drawing — it\'s a tattoo with a story. Jan fulfilled that dream with extraordinary care, precision and professionalism.',
+        'The execution is incredibly clean — lines are even and every detail is polished. The studio vibe was relaxed and easy, zero tension.',
+      ],
+      review_dates:['2 months ago','1 month ago','2 months ago','4 months ago','4 months ago','4 months ago'],
+      pricing_label:'Pricing', pricing_heading:'Transparent<br><em>Pricing</em>',
+      pricing_th_svc:'Service', pricing_th_price:'Price',
+      pricing_names:['Realism hour <span class="price-badge">detail</span>','Mid-size realistic piece','Full session / Large realism'],
+      pricing_descs:[
+        'Realistic detail, shading, refinement — exact quote given in person',
+        'Portrait, animal, skull or any motif with rich light and shadow',
+        'Sleeve, back piece, chest or a multi-hour realistic composition',
+      ],
+      pricing_note:'Final pricing is agreed individually during the consultation. A 150 PLN deposit is required at the time of booking — it counts toward the total price of your tattoo.',
+      booking_label:'Booking', booking_title:'Book<br><em>Online</em>',
+      booking_info:"Pick a date and time. I'll get back to you within 24 hours to confirm your booking and talk through the details of your project.",
+      booking_li:['Confirmation within 24h','Deposit only after consultation','Deposit goes toward the final price','Sterile, certified studio'],
+      slots_label:'Available times', summary_label:'Selected date',
+      lbl_name:'Full name', ph_name:'John Smith', lbl_phone:'Phone', lbl_email:'Email',
+      lbl_svc:'Service', svc_opts:['Consultation','Small tattoo','Medium tattoo','Large tattoo','Touch-up / cover'],
+      lbl_ig:'Instagram or other contact', ph_ig:'@yourprofile or Messenger',
+      lbl_notes:'Project description', ph_notes:'Briefly describe the design, size, placement and preferred style...',
+      form_note:'Once submitted, your request will appear in the admin panel as pending. The artist can then edit your details, confirm the appointment or block additional times.',
+      btn_send:'Send inquiry', day_names:['Mo','Tu','We','Th','Fr','Sa','Su'],
+      contact_label:'Contact', contact_heading:'Find<br><em>Us</em>',
+      card_address:'Address', card_hours:'Opening hours', hours_days:'Monday – Sunday',
+      card_phone:'Phone & Email', card_social:'Social Media',
+      nav_about:'About', nav_gallery:'Gallery', nav_pricing:'Pricing', nav_booking:'Booking', nav_contact:'Contact', nav_cta:'Full Gallery',
+      footer_copy:'© 2026 Judin Tattoo — All rights reserved',
+    }
+  };
+
+  function applyLang(lang) {
+    if (!i18n[lang]) return;
+    document.documentElement.lang = lang;
+    const t = i18n[lang];
+
+    const set  = (sel, val, prop = 'textContent') => { const el = document.querySelector(sel); if (el) el[prop] = val; };
+    const setH = (sel, val) => { const el = document.querySelector(sel); if (el) el.innerHTML = val; };
+    const setTxt = (el, text) => {
+      Array.from(el.childNodes).filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { n.textContent = text; });
+    };
+
+    /* Stats */
+    const statLbls = document.querySelectorAll('#heroStats .stat-label');
+    [t.stat_years, t.stat_clients, t.stat_rating].forEach((v,i) => { if (statLbls[i]) statLbls[i].textContent = v; });
+
+    /* Hero */
+    set('.hero-desc', t.hero_desc);
+    const hBtn = document.querySelector('.hero-content .btn-primary span');
+    if (hBtn) hBtn.textContent = t.btn_book;
+    set('.hero-content .btn-ghost', t.btn_gallery);
+
+    /* Gallery strip */
+    set('#gallery-strip .section-label', t.gallery_label);
+    setH('#gallery-strip .section-heading', t.gallery_heading);
+    set('#gallery-strip .strip-header .btn-ghost', t.btn_full_gallery);
+    const drag = document.querySelector('.drag-hint');
+    if (drag) setTxt(drag, t.drag_hint);
+    const ogSpan = document.querySelector('.strip-footer .btn-primary span');
+    if (ogSpan) ogSpan.textContent = t.btn_open_gallery;
+
+    /* Showreel */
+    set('#showreel .section-label', t.showreel_label);
+    set('#showreel .section-heading', t.showreel_heading);
+
+    /* About */
+    set('#about .section-label', t.about_label);
+    document.querySelectorAll('#about .about-text').forEach((el,i) => { if (t.about_texts[i]) el.textContent = t.about_texts[i]; });
+    const aBtn = document.querySelector('#about .btn-primary span');
+    if (aBtn) aBtn.textContent = t.btn_consult;
+
+    /* Process */
+    set('#process .section-label', t.process_label);
+    setH('#process .section-heading', t.process_heading);
+    document.querySelectorAll('.process-title').forEach((el,i) => { if (t.process_titles[i]) el.textContent = t.process_titles[i]; });
+    document.querySelectorAll('.process-desc').forEach((el,i)  => { if (t.process_descs[i]) el.textContent = t.process_descs[i]; });
+
+    /* Reviews */
+    set('#reviews .section-label', t.reviews_label);
+    setH('#reviews .section-heading', t.reviews_heading);
+    set('.reviews-intro', t.reviews_intro);
+    set('.reviews-meta strong', t.reviews_meta_score);
+    set('.reviews-meta span', t.reviews_meta_label);
+    document.querySelectorAll('.review-text').forEach((el,i) => { if (t.review_texts[i]) el.textContent = t.review_texts[i]; });
+    document.querySelectorAll('.review-date').forEach((el,i) => { if (t.review_dates[i]) el.textContent = t.review_dates[i]; });
+
+    /* Pricing */
+    set('#pricing .section-label', t.pricing_label);
+    setH('#pricing .section-heading', t.pricing_heading);
+    const ths = document.querySelectorAll('.pricing-table th');
+    if (ths[0]) ths[0].textContent = t.pricing_th_svc;
+    if (ths[2]) ths[2].textContent = t.pricing_th_price;
+    document.querySelectorAll('.price-name').forEach((el,i) => { if (t.pricing_names[i] !== undefined) el.innerHTML = t.pricing_names[i]; });
+    document.querySelectorAll('.price-desc').forEach((el,i) => { if (t.pricing_descs[i]) el.textContent = t.pricing_descs[i]; });
+    set('.pricing-note p', t.pricing_note);
+
+    /* Booking */
+    set('#booking .section-label', t.booking_label);
+    setH('.booking-info-title', t.booking_title);
+    set('.booking-info-text', t.booking_info);
+    document.querySelectorAll('.booking-list li').forEach((li,i) => {
+      if (!t.booking_li[i]) return;
+      Array.from(li.childNodes).filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { n.textContent = t.booking_li[i]; });
+    });
+    set('.slots-label', t.slots_label);
+    set('.booking-summary-label', t.summary_label);
+
+    /* Form */
+    const lq = (f, v, p='textContent') => { const el = document.querySelector(`label[for="${f}"]`); if (el) el[p] = v; };
+    lq('clientName', t.lbl_name);
+    const ni = document.getElementById('clientName'); if (ni) ni.placeholder = t.ph_name;
+    lq('clientPhone', t.lbl_phone);
+    lq('clientEmail', t.lbl_email);
+    lq('clientService', t.lbl_svc);
+    document.querySelectorAll('#clientService option').forEach((o,i) => { if (t.svc_opts[i]) o.textContent = t.svc_opts[i]; });
+    lq('clientInstagram', t.lbl_ig);
+    const ii = document.getElementById('clientInstagram'); if (ii) ii.placeholder = t.ph_ig;
+    lq('clientNotes', t.lbl_notes);
+    const ni2 = document.getElementById('clientNotes'); if (ni2) ni2.placeholder = t.ph_notes;
+    set('.form-note', t.form_note);
+    const sBtn = document.querySelector('#bookingSubmitBtn span'); if (sBtn) sBtn.textContent = t.btn_send;
+    document.querySelectorAll('.cal-day-name').forEach((el,i) => { if (t.day_names[i]) el.textContent = t.day_names[i]; });
+
+    /* Contact */
+    set('#contact .section-label', t.contact_label);
+    setH('#contact .section-heading', t.contact_heading);
+    const cls = document.querySelectorAll('.card-label');
+    if (cls[0]) cls[0].textContent = t.card_address;
+    if (cls[1]) cls[1].textContent = t.card_hours;
+    const hr = document.querySelector('.hours-row span'); if (hr) hr.textContent = t.hours_days;
+    if (cls[2]) cls[2].textContent = t.card_phone;
+    if (cls[3]) cls[3].textContent = t.card_social;
+
+    /* Nav */
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      const h = a.getAttribute('href');
+      if (h === '#about') a.textContent = t.nav_about;
+      else if (h === '#gallery-strip') a.textContent = t.nav_gallery;
+      else if (h === '#pricing') a.textContent = t.nav_pricing;
+      else if (h === '#booking') a.textContent = t.nav_booking;
+      else if (h === '#contact') a.textContent = t.nav_contact;
+      else if (h === 'galeria.html' && a.classList.contains('nav-cta')) {
+        const sp = a.querySelector('span'); if (sp) sp.textContent = t.nav_cta;
+      }
+    });
+    document.querySelectorAll('.mobile-menu a').forEach(a => {
+      const h = a.getAttribute('href');
+      if (h === '#about') a.textContent = t.nav_about;
+      else if (h === 'galeria.html') a.textContent = t.nav_gallery;
+      else if (h === '#pricing') a.textContent = t.nav_pricing;
+      else if (h === '#booking') a.textContent = t.nav_booking;
+      else if (h === '#contact') a.textContent = t.nav_contact;
+    });
+
+    /* Footer */
+    set('.footer-copy', t.footer_copy);
+    document.querySelectorAll('.footer-links a').forEach(a => {
+      const h = a.getAttribute('href');
+      if (h === 'galeria.html') a.textContent = t.nav_gallery;
+      else if (h === '#pricing') a.textContent = t.nav_pricing;
+      else if (h === '#booking') a.textContent = t.nav_booking;
+      else if (h === '#contact') a.textContent = t.nav_contact;
+    });
+  }
+
+  /* ── Popup logic ── */
+  (function initLangPopup() {
+    const popup = document.getElementById('langPopup');
+    const introEl = document.getElementById('intro');
+
+    function closeLang() {
+      popup.classList.remove('visible');
+      setTimeout(() => { popup.style.display = 'none'; }, 500);
+    }
+
+    /* Show after intro finishes (watch for 'gone' class) */
+    const obs = new MutationObserver(() => {
+      if (introEl && introEl.classList.contains('gone')) {
+        obs.disconnect();
+        setTimeout(() => popup.classList.add('visible'), 300);
+      }
+    });
+    if (introEl) obs.observe(introEl, { attributes: true, attributeFilter: ['class'] });
+
+    document.getElementById('langPlBtn').addEventListener('click', () => { applyLang('pl'); closeLang(); });
+    document.getElementById('langEnBtn').addEventListener('click', () => { applyLang('en'); closeLang(); });
+    document.getElementById('langCloseBtn').addEventListener('click', closeLang);
+    document.addEventListener('keydown', function onEsc(e) {
+      if (e.key === 'Escape' && popup.classList.contains('visible')) { closeLang(); }
+    });
+  })();
+
+  /* ══════════════════════════════════════════════════════
+     ADMIN GATE — checks Railway session, no password stored client-side
+  ══════════════════════════════════════════════════════ */
+  (async function initAdminGate() {
+    const adminSection = document.getElementById('admin-panel');
+    const adminShell   = document.getElementById('adminShell');
+    const adminGate    = document.getElementById('adminGate');
+    if (!adminSection || !adminShell || !adminGate) return;
+
+    /* On localhost — always unlock (dev mode) */
+    const isLocal = ['localhost','127.0.0.1',''].includes(window.location.hostname) ||
+                    window.location.hostname.endsWith('.local');
+    if (isLocal) {
+      adminShell.style.display = '';
+      adminGate.style.display = 'none';
+      adminSection.classList.add('admin-unlocked');
+      return;
+    }
+
+    /* Check Railway session: fetch /admin with redirect:manual
+       • res.ok (status 200)  → authenticated
+       • opaqueredirect / err → not authenticated                  */
+    let authed = false;
+    try {
+      const res = await fetch('/admin', { credentials: 'include', redirect: 'manual' });
+      authed = res.ok;
+    } catch(e) { authed = false; }
+
+    if (authed) {
+      adminShell.style.display = '';
+      adminGate.style.display = 'none';
+      adminSection.classList.add('admin-unlocked');
+    }
+    /* else: gate stays, shell stays hidden */
+
+    /* Block direct hash navigation to admin-panel without session */
+    function guardHash() {
+      if (window.location.hash === '#admin-panel' && !adminSection.classList.contains('admin-unlocked')) {
+        history.replaceState(null, '', window.location.pathname);
+        adminGate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+    guardHash();
+    window.addEventListener('hashchange', guardHash);
+  })();
 
   </script>
 </body>
